@@ -26,10 +26,8 @@ class DataWrapperImpl extends DataWrapper {
   dynamic unwrapValue(dynamic value) {
     if (value is _DocumentReferenceImpl) {
       return value._documentReference;
-    } else if (value == FieldValue.DELETE) {
-      return fs.FieldValue.delete();
-    } else if (value == FieldValue.SERVER_TIMESTAMP) {
-      return fs.FieldValue.serverTimestamp();
+    } else if (value is FieldValue) {
+      return unwrapFieldValue(value);
     } else if (value is Map) {
       return unwrapMap(value);
     } else if (value is DateTime) {
@@ -41,6 +39,23 @@ class DataWrapperImpl extends DataWrapper {
     } else {
       return value;
     }
+  }
+
+  @override
+  dynamic unwrapFieldValue(FieldValue fieldValue) {
+    switch (fieldValue.type) {
+      case FieldValueType.increment:
+        return fs.FieldValue.increment(fieldValue.value);
+      case FieldValueType.delete:
+        return fs.FieldValue.delete();
+      case FieldValueType.serverTimestamp:
+        return fs.FieldValue.serverTimestamp();
+      case FieldValueType.arrayRemove:
+        return fs.FieldValue.arrayRemove(unwrapList(fieldValue.value));
+      case FieldValueType.arrayUnion:
+        return fs.FieldValue.arrayUnion(unwrapList(fieldValue.value));
+    }
+    throw Exception("unknown field value type $fieldValue");
   }
 }
 

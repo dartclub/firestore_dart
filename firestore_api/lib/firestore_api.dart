@@ -8,6 +8,7 @@ typedef TransactionHandler = Function(Transaction transaction);
 abstract class DataWrapper {
   dynamic wrapValue(dynamic value);
   dynamic unwrapValue(dynamic value);
+  dynamic unwrapFieldValue(FieldValue value);
 
   /// wraps Firestore library values into this API values
   ///
@@ -223,12 +224,32 @@ abstract class WriteBatch {
   void updateData(DocumentReference document, Map<String, dynamic> data);
 }
 
+enum FieldValueType {
+  arrayUnion,
+  arrayRemove,
+  delete,
+  serverTimestamp,
+  increment,
+}
+
 class FieldValue {
-  static final FieldValue DELETE = FieldValue();
-  static final FieldValue SERVER_TIMESTAMP = FieldValue();
+  FieldValue._(this.type, this.value);
+
+  final FieldValueType type;
+
+  final dynamic value;
+
+  static final FieldValue DELETE = FieldValue._(FieldValueType.delete, null);
+  static final FieldValue SERVER_TIMESTAMP =
+      FieldValue._(FieldValueType.serverTimestamp, null);
 
   static FieldValue delete() => DELETE;
   static FieldValue serverTimestamp() => DELETE;
+
+  static FieldValue increment(num value) =>
+      FieldValue._(FieldValueType.increment, value);
+  static FieldValue arrayRemove(List<dynamic> value) =>
+      FieldValue._(FieldValueType.increment, value);
 }
 
 // oriented at the cloud_firestore package's Blob implementation
