@@ -22,10 +22,8 @@ class DataWrapperImpl extends DataWrapper {
   dynamic unwrapValue(dynamic value) {
     if (value is _DocumentReferenceImpl) {
       return value._documentReference;
-    } else if (value == FieldValue.DELETE) {
-      return fs.FieldValue.delete();
-    } else if (value == FieldValue.SERVER_TIMESTAMP) {
-      return fs.FieldValue.serverTimestamp();
+    } else if (value is FieldValue) {
+      return unwrapFieldValue(value);
     } else if (value is Map) {
       return unwrapMap(value);
     } else if (value is List) {
@@ -35,6 +33,23 @@ class DataWrapperImpl extends DataWrapper {
     } else {
       return value;
     }
+  }
+
+  @override
+  unwrapFieldValue(FieldValue fieldValue) {
+    switch (fieldValue.type) {
+      case FieldValueType.increment:
+        return fs.FieldValue.increment(fieldValue.value);
+      case FieldValueType.delete:
+        return fs.FieldValue.delete();
+      case FieldValueType.serverTimestamp:
+        return fs.FieldValue.serverTimestamp();
+      case FieldValueType.arrayRemove:
+        return fs.FieldValue.arrayRemove(unwrapList(fieldValue.value));
+      case FieldValueType.arrayUnion:
+        return fs.FieldValue.arrayUnion(unwrapList(fieldValue.value));
+    }
+    throw Exception("unknown field value type $fieldValue");
   }
 }
 
@@ -62,6 +77,11 @@ class _DocumentSnapshotImpl extends DocumentSnapshot {
   @override
   DocumentReference get reference =>
       _DocumentReferenceImpl(_documentSnapshot.ref);
+
+  @override
+  SnapshotMetadata get metadata => SnapshotMetadata(
+      _documentSnapshot.metadata.hasPendingWrites,
+      _documentSnapshot.metadata.fromCache);
 }
 
 class _DocumentChangeImpl extends DocumentChange {
@@ -117,6 +137,11 @@ class _QuerySnapshotImpl extends QuerySnapshot {
       onEach(_DocumentSnapshotImpl(snapshot));
     });
   }
+
+  @override
+  SnapshotMetadata get metadata => SnapshotMetadata(
+      _querySnapshot.metadata.hasPendingWrites,
+      _querySnapshot.metadata.fromCache);
 }
 
 class _DocumentReferenceImpl extends DocumentReference {
@@ -197,7 +222,11 @@ class _QueryImpl extends Query {
   _QueryImpl(this._query);
 
   @override
-  Future<QuerySnapshot> getDocuments() async {
+  Future<QuerySnapshot> getDocuments(
+      {Source source = Source.serverAndCache}) async {
+    if (source != Source.serverAndCache) {
+      throw Exception("only serverAndCache as Source supported at the moment");
+    }
     return _QuerySnapshotImpl(await _query.get());
   }
 
@@ -212,8 +241,11 @@ class _QueryImpl extends Query {
   }
 
   @override
-  Stream<QuerySnapshot> snapshots() {
-    return _query.onSnapshot.map((snapshot) => _QuerySnapshotImpl(snapshot));
+  Stream<QuerySnapshot> snapshots({bool includeMetadataChanges = false}) {
+    return includeMetadataChanges
+        ? _query.onSnapshotMetadata
+            .map((snapshot) => _QuerySnapshotImpl(snapshot))
+        : _query.onSnapshot.map((snapshot) => _QuerySnapshotImpl(snapshot));
   }
 
   @override
@@ -251,6 +283,58 @@ class _QueryImpl extends Query {
     }
     value = _dataWrapper.unwrapValue(value);
     return _QueryImpl(_query.where(field, compareOperator, value));
+  }
+
+  @override
+  Query endAt(List values) {
+    return _QueryImpl(
+        _query.endAt(fieldValues: _dataWrapper.unwrapList(values)));
+  }
+
+  @override
+  Query endAtDocument(DocumentSnapshot documentSnapshot) {
+    return _QueryImpl(_query.endAt(
+        snapshot:
+            (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot));
+  }
+
+  @override
+  Query endBefore(List values) {
+    return _QueryImpl(
+        _query.endBefore(fieldValues: _dataWrapper.unwrapList(values)));
+  }
+
+  @override
+  Query endBeforeDocument(DocumentSnapshot documentSnapshot) {
+    return _QueryImpl(_query.endBefore(
+        snapshot:
+            (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot));
+  }
+
+  @override
+  Query startAfter(List values) {
+    return _QueryImpl(
+        _query.startAfter(fieldValues: _dataWrapper.unwrapList(values)));
+  }
+
+  @override
+  Query startAfterDocument(DocumentSnapshot documentSnapshot) {
+    return _QueryImpl(_query.startAfter(
+        snapshot:
+            (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot));
+  }
+
+  @override
+  Query startAt(List values) {
+    return _QueryImpl(
+        _query.startAt(fieldValues: _dataWrapper.unwrapList(values)));
+  }
+
+  @override
+  Query startAtDocument(DocumentSnapshot documentSnapshot) {
+    return _QueryImpl(_query.startAt(
+        snapshot:
+            (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot));
   }
 }
 
@@ -344,5 +428,10 @@ class FirestoreImpl extends Firestore {
     return _firestore.runTransaction((fs.Transaction transaction) {
       return transactionHandler(_Transaction(transaction));
     });
+  }
+
+  @override
+  Query collectionGroup(String path) {
+    return _QueryImpl(_firestore.collectionGroup(path));
   }
 }

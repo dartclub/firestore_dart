@@ -9,7 +9,8 @@ environment:
 dependencies:
   firestore_api:
     path: ../firestore_api
-  firebase: ^5.0.3
+  firebase:
+    git: https://github.com/FirebaseExtended/firebase-dart
 
 dev_dependencies:
   test: ^1.0.0
