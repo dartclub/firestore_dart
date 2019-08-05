@@ -10,7 +10,7 @@ environment:
 dependencies:
   cloud_firestore: ^0.12.1
   firestore_api:
-    path: /Users/lukashimsel/Projects/blp/firestore_dart/firestore_api
+    path: ../firestore_api
   flutter:
     sdk: flutter
   
