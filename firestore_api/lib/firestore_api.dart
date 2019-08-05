@@ -1,3 +1,5 @@
+library firestore_api;
+
 import 'dart:async';
 
 import 'dart:typed_data';
