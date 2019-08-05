@@ -202,8 +202,7 @@ class _DocumentReferenceImpl extends DocumentReference {
 
   @override
   CollectionReference get parent {
-    throw Exception(
-        "not implemented yet"); // see https://github.com/flutter/flutter/issues/30103
+    return _CollectionReferenceImpl(_documentReference.parent());
   }
 }
 
@@ -227,8 +226,7 @@ class _CollectionReferenceImpl extends _QueryImpl
 
   @override
   DocumentReference get parent {
-    throw Exception(
-        "not implemented yet"); // see https://github.com/flutter/flutter/issues/30103
+    return _DocumentReferenceImpl(_collectionReference.parent());
   }
 }
 
