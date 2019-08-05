@@ -99,6 +99,8 @@ enum Source {
 
 abstract class Firestore {
   CollectionReference collection(String path);
+  Query collectionGroup(String path);
+
   DocumentReference document(String path);
   WriteBatch batch();
   Future<void> runTransaction(TransactionHandler transactionHandler,

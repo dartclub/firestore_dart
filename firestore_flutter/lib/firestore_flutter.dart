@@ -416,4 +416,9 @@ class FirestoreImpl extends Firestore {
       return transactionHandler(_Transaction(transaction));
     }, timeout: timeout);
   }
+
+  @override
+  Query collectionGroup(String path) {
+    return _QueryImpl(_firestore.collectionGroup(path));
+  }
 }
