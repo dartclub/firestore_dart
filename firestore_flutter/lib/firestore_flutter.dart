@@ -78,7 +78,6 @@ class _DocumentSnapshotImpl extends DocumentSnapshot {
   SnapshotMetadata get metadata => SnapshotMetadata(
       _documentSnapshot.metadata.hasPendingWrites,
       _documentSnapshot.metadata.isFromCache);
-
 }
 
 class _DocumentChangeImpl extends DocumentChange {
@@ -135,11 +134,10 @@ class _QuerySnapshotImpl extends QuerySnapshot {
     });
   }
 
-    @override
+  @override
   SnapshotMetadata get metadata => SnapshotMetadata(
       _querySnapshot.metadata.hasPendingWrites,
       _querySnapshot.metadata.isFromCache);
-
 }
 
 class _DocumentReferenceImpl extends DocumentReference {
@@ -219,14 +217,28 @@ class _CollectionReferenceImpl extends _QueryImpl
   }
 }
 
+fs.Source _remapSource(Source source) {
+  switch (source) {
+    case Source.serverAndCache:
+      return fs.Source.serverAndCache;
+    case Source.cache:
+      return fs.Source.cache;
+    case Source.server:
+      return fs.Source.server;
+  }
+  throw Exception("unknown source: $source");
+}
+
 class _QueryImpl extends Query {
   final fs.Query _query;
 
   _QueryImpl(this._query);
 
   @override
-  Future<QuerySnapshot> getDocuments() async {
-    return _QuerySnapshotImpl(await _query.getDocuments());
+  Future<QuerySnapshot> getDocuments(
+      {Source source = Source.serverAndCache}) async {
+    return _QuerySnapshotImpl(
+        await _query.getDocuments(source: _remapSource(source)));
   }
 
   @override
@@ -240,8 +252,10 @@ class _QueryImpl extends Query {
   }
 
   @override
-  Stream<QuerySnapshot> snapshots() {
-    return _query.snapshots().map((snapshot) => _QuerySnapshotImpl(snapshot));
+  Stream<QuerySnapshot> snapshots({bool includeMetadataChanges = false}) {
+    return _query
+        .snapshots(includeMetadataChanges: includeMetadataChanges)
+        .map((snapshot) => _QuerySnapshotImpl(snapshot));
   }
 
   @override
