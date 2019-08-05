@@ -1,0 +1,15 @@
+name: firestore_web
+description:
+version: 0.0.1
+homepage: https://www.github.com/dartclub/firestore_dart
+
+environment:
+  sdk: '>=2.0.0-dev <3.0.0'
+
+dependencies:
+  firestore_api:
+    path: /Users/lukashimsel/Projects/blp/firestore_dart/firestore_api
+  firebase: ^5.0.3
+
+dev_dependencies:
+  test: ^1.0.0

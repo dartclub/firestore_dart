@@ -1,0 +1,17 @@
+targets:
+  $default:
+    builders:
+      firestore_serializer:
+        enabled: true
+        generate_for:
+        - test/*
+        - test/generator/*
+builders:
+  firestore_serializer:
+    target: ":firestore_serializer"
+    import: "package:firestore_serializer/firestore_serializer.dart"
+    builder_factories: ["firestoreSerializer"]
+    build_extensions: {".dart": [".firestore_serializer.g.part"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
