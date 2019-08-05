@@ -73,6 +73,12 @@ class _DocumentSnapshotImpl extends DocumentSnapshot {
   @override
   DocumentReference get reference =>
       _DocumentReferenceImpl(_documentSnapshot.reference);
+
+  @override
+  SnapshotMetadata get metadata => SnapshotMetadata(
+      _documentSnapshot.metadata.hasPendingWrites,
+      _documentSnapshot.metadata.isFromCache);
+
 }
 
 class _DocumentChangeImpl extends DocumentChange {
@@ -128,6 +134,12 @@ class _QuerySnapshotImpl extends QuerySnapshot {
       onEach(_DocumentSnapshotImpl(snapshot));
     });
   }
+
+    @override
+  SnapshotMetadata get metadata => SnapshotMetadata(
+      _querySnapshot.metadata.hasPendingWrites,
+      _querySnapshot.metadata.isFromCache);
+
 }
 
 class _DocumentReferenceImpl extends DocumentReference {
