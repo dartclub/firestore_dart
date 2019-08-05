@@ -188,6 +188,11 @@ abstract class Query {
   });
   Query orderBy(String field, {bool descending: false});
   Query limit(int length);
+
+  Query startAfterDocument(DocumentSnapshot documentSnapshot);
+  Query startAtDocument(DocumentSnapshot documentSnapshot);
+  Query endAtDocument(DocumentSnapshot documentSnapshot);
+  Query endBeforeDocument(DocumentSnapshot documentSnapshot);
 }
 
 enum DocumentChangeType {
@@ -226,9 +231,7 @@ class Blob {
   final Uint8List bytes;
 
   @override
-  bool operator ==(dynamic other) =>
-      other is Blob &&
-       bytes == other.bytes;
+  bool operator ==(dynamic other) => other is Blob && bytes == other.bytes;
 }
 
 abstract class BatchHelperService {
@@ -356,10 +359,10 @@ class FirestoreAttribute {
   final dynamic defaultValue;
 
   const FirestoreAttribute({
-    this.ignore=false,
-    this.required=true,
-    this.nullable=true,
-    this.alias=null,
-    this.defaultValue=null,
+    this.ignore = false,
+    this.required = true,
+    this.nullable = true,
+    this.alias = null,
+    this.defaultValue = null,
   });
 }

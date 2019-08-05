@@ -277,6 +277,26 @@ class _QueryImpl extends Query {
         isNull: _dataWrapper.unwrapValue(isNull),
         arrayContains: _dataWrapper.unwrapValue(arrayContains)));
   }
+
+  @override
+  Query endAtDocument(DocumentSnapshot documentSnapshot) {
+    return _QueryImpl(_query.endAtDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+  }
+
+  @override
+  Query endBeforeDocument(DocumentSnapshot documentSnapshot) {
+    return _QueryImpl(_query.endBeforeDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+  }
+
+  @override
+  Query startAfterDocument(DocumentSnapshot documentSnapshot) {
+    return _QueryImpl(_query.startAfterDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+  }
+
+  @override
+  Query startAtDocument(DocumentSnapshot documentSnapshot) {
+    return _QueryImpl(_query.startAtDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+  }
 }
 
 class _WriteBatch extends WriteBatch {
