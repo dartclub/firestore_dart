@@ -193,6 +193,11 @@ abstract class Query {
   Query startAtDocument(DocumentSnapshot documentSnapshot);
   Query endAtDocument(DocumentSnapshot documentSnapshot);
   Query endBeforeDocument(DocumentSnapshot documentSnapshot);
+
+  Query startAfter(List<dynamic> values);
+  Query startAt(List<dynamic> values);
+  Query endAt(List<dynamic> values);
+  Query endBefore(List<dynamic> values);
 }
 
 enum DocumentChangeType {

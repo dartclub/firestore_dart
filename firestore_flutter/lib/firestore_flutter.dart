@@ -280,22 +280,46 @@ class _QueryImpl extends Query {
 
   @override
   Query endAtDocument(DocumentSnapshot documentSnapshot) {
-    return _QueryImpl(_query.endAtDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+    return _QueryImpl(
+        _query.endAtDocument(_dataWrapper.unwrapValue(documentSnapshot)));
   }
 
   @override
   Query endBeforeDocument(DocumentSnapshot documentSnapshot) {
-    return _QueryImpl(_query.endBeforeDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+    return _QueryImpl(
+        _query.endBeforeDocument(_dataWrapper.unwrapValue(documentSnapshot)));
   }
 
   @override
   Query startAfterDocument(DocumentSnapshot documentSnapshot) {
-    return _QueryImpl(_query.startAfterDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+    return _QueryImpl(
+        _query.startAfterDocument(_dataWrapper.unwrapValue(documentSnapshot)));
   }
 
   @override
   Query startAtDocument(DocumentSnapshot documentSnapshot) {
-    return _QueryImpl(_query.startAtDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+    return _QueryImpl(
+        _query.startAtDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+  }
+
+  @override
+  Query endAt(List<dynamic> values) {
+    return _QueryImpl(_query.endAt(_dataWrapper.unwrapValue(values)));
+  }
+
+  @override
+  Query endBefore(List<dynamic> values) {
+    return _QueryImpl(_query.endBefore(_dataWrapper.unwrapValue(values)));
+  }
+
+  @override
+  Query startAfter(List<dynamic> values) {
+    return _QueryImpl(_query.startAfter(_dataWrapper.unwrapValue(values)));
+  }
+
+  @override
+  Query startAt(List<dynamic> values) {
+    return _QueryImpl(_query.startAt(_dataWrapper.unwrapValue(values)));
   }
 }
 
