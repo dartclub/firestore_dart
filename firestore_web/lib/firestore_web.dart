@@ -1,3 +1,5 @@
+library firestore_web;
+
 import 'package:firebase/firestore.dart' as fs;
 import 'package:firestore_api/firestore_api.dart';
 import 'dart:async';
