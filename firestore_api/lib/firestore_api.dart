@@ -5,7 +5,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 typedef OnEachDocumentSnapshot = Function(DocumentSnapshot snapshot);
-typedef TransactionHandler = Map<String, dynamic>Function(Transaction transaction);
+typedef TransactionHandler = Future<Map<String, dynamic>> Function(Transaction transaction);
 
 abstract class DataWrapper {
   dynamic wrapValue(dynamic value);
