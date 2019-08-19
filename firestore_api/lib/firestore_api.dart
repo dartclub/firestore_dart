@@ -154,6 +154,11 @@ abstract class DocumentReference {
 
   @override
   int get hashCode => path.hashCode;
+
+  @override 
+  String toString() {
+    return path;
+  }
 }
 
 abstract class CollectionReference extends Query {
