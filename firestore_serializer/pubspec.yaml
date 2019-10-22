@@ -2,7 +2,6 @@ name: firestore_serializer
 description:
 version: 0.0.1
 homepage: https://www.github.com/dartclub/firestore_dart
-
 environment:
   sdk: '>=2.2.0 <3.0.0'
 

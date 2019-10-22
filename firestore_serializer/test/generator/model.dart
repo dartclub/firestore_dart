@@ -24,19 +24,23 @@ class Model {
 
   Submodel submodel;
 
-  List<Submodel> submodelList;
-
   List<int> intList;
 
-  List<dynamic> dynamicList;
+  List<Submodel> submodelList;
 
-  List<List<dynamic>> nestedList;
+  //List<List<int>> nestedIntList;
 
-  List<List<List<dynamic>>> doublyNestedList;
+  //List<dynamic> dynamicList;
+
+  //List<List<dynamic>> nestedList;
+
+  //List<List<Submodel>> nestedSubmodelList;
+
+  //ist<List<List<dynamic>>> doublyNestedList;
 
   Map<String, Submodel> submodelMap;
 
-  Map<String, dynamic> dynamicMap;
+  //Map<String, dynamic> dynamicMap;
 
   DateTime dateTime;
 
@@ -50,12 +54,13 @@ class Model {
     this.number,
     this.submodel,
     this.submodelList,
-    this.intList,
-    this.dynamicList,
-    this.nestedList,
-    this.doublyNestedList,
     this.submodelMap,
-    this.dynamicMap,
+    this.intList,
+    //this.nestedIntList,
+    //this.dynamicList,
+    //this.nestedList,
+    //this.doublyNestedList,
+    //this.dynamicMap
     this.dateTime,
     this.blob,
     this.function,

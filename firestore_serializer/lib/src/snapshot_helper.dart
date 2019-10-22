@@ -7,40 +7,58 @@ class SnapshotHelper with Helper {
 
   SnapshotHelper(this.subdocument);
 
-  String serializeElement(FieldElement el) {
+  String _serializeNestedElement(
+      Element el, AnnotationHelper annotation, String data) {
+    var type = getTypeOfElement(el);
 
+    if (isNestedElement(type)) {
+      Element subEl = getNestedElement(type);
+      String inner = _serializeNestedElement(subEl, annotation, 'data');
+      if (inner.isEmpty) {
+        return '';
+      } else {
+        if (isListElement(type)) {
+          return '$data.map((data) => $inner)';
+        } else if (isMapElement(type)) {
+          return '$data.map((key, data) => MapEntry(key, $inner))';
+        } else {
+          throw Exception('unsupported type ${type?.name}');
+        }
+      }
+    } else {
+      return _serializeSimpleElement(el, annotation, data);
+    }
+  }
+
+  String _serializeSimpleElement(
+      Element el, AnnotationHelper annotation, String data) {
+    var type = getTypeOfElement(el);
+    if (isSimpleElement(type)) {
+      return data;
+    } else if (isFirestoreElement(type)) {
+      return '$type.fromSnapshot($data)';
+    } else {
+      throw Exception('unsupported type ${type?.name}');
+    }
+  }
+
+  String serializeElement(FieldElement el) {
     AnnotationHelper annotation = AnnotationHelper(el);
 
     String srcName = annotation.alias ?? el.name;
     String destName = el.name;
-    String data = subdocument ? 'data["$srcName"]' : 'snapshot.data["$srcName"]';
-    String line = '$destName: ';
-    
-    if (annotation.ignore) {
+    String data =
+        subdocument ? 'data["$srcName"]' : 'snapshot.data["$srcName"]';
+
+    var type = el.type;
+
+    if (annotation.ignore || isFunction(type)) {
       return '\t// ignoring attribute \'${el.type.name} $destName\'\n';
     } else {
-      if (isFirestoreElement(el.type)) {
-        String type = getTypeOfFirestoreElement(el.type);
-        line += '$type.fromSnapshot($data)';
-      } else if (isSimpleElement(el) || isDynamicElementMap(el)) {
-        line += '$data';
-      } else if (isFirestoreElementList(el)) {
-        String type = getTypeOfGenericList(el);
-        line +=
-            '$data.map((Map<String, dynamic> el) => $type.fromSnapshot(el)).toList()';
-      } else if (isSimpleElementList(el)) {
-        line += '$data.toList()';
-      } else if (isFirestoreElementMap(el)) {
-        String type = getTypeOfGenericMap(el);
-        line +=
-            '$data.map<String,$type>((String k, Map<String, dynamic> v) => MapEntry(k, $type.fromSnapshot(v)))';
-      } 
-      // TODO implement nestedElement
-      else {
-        return '\t// ignoring attribute \'${el.type.name} $destName\'\n';
-      }
+      return '$destName: ' +
+          _serializeNestedElement(el, annotation, data) +
+          ',\n';
     }
-    return '$line,\n';
   }
 
   Iterable<String> createFromSnapshot(

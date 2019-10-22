@@ -381,14 +381,12 @@ class FirestoreSubdocument {
 /* Properties*/
 class FirestoreAttribute {
   final bool ignore;
-  final bool required;
   final bool nullable;
   final String alias;
   final dynamic defaultValue;
 
   const FirestoreAttribute({
     this.ignore = false,
-    this.required = true,
     this.nullable = true,
     this.alias = null,
     this.defaultValue = null,

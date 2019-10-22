@@ -35,8 +35,6 @@ class AnnotationHelper with Helper {
       DartObject obj = _meta.computeConstantValue();
       attribute = FirestoreAttribute(
         ignore: obj.getField('ignore').toBoolValue(),
-        required:
-            obj.getField('required').toBoolValue(), // TODO implement required
         nullable:
             obj.getField('nullable').toBoolValue(), // TODO implement nullable
         alias: obj.getField('alias').toStringValue(),
@@ -48,7 +46,6 @@ class AnnotationHelper with Helper {
 
   get hasFirestoreAttribute => _hasFirestoreAttribute;
   get ignore => attribute.ignore;
-  get required => attribute.required;
   get nullable => attribute.nullable;
   get alias => attribute.alias;
   get defaultValue => attribute.defaultValue;
