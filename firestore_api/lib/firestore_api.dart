@@ -1,9 +1,11 @@
+library firestore_api;
+
 import 'dart:async';
 
 import 'dart:typed_data';
 
 typedef OnEachDocumentSnapshot = Function(DocumentSnapshot snapshot);
-typedef TransactionHandler = Function(Transaction transaction);
+typedef TransactionHandler = Future<Map<String, dynamic>> Function(Transaction transaction);
 
 abstract class DataWrapper {
   dynamic wrapValue(dynamic value);
@@ -104,7 +106,7 @@ abstract class Firestore {
 
   DocumentReference document(String path);
   WriteBatch batch();
-  Future<void> runTransaction(TransactionHandler transactionHandler,
+  Future<Map<String, dynamic>> runTransaction(TransactionHandler transactionHandler,
       {Duration timeout = const Duration(seconds: 5)});
 }
 
@@ -152,6 +154,11 @@ abstract class DocumentReference {
 
   @override
   int get hashCode => path.hashCode;
+
+  @override 
+  String toString() {
+    return path;
+  }
 }
 
 abstract class CollectionReference extends Query {

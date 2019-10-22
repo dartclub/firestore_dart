@@ -1,7 +1,7 @@
-library firestore_web;
+import 'dart:typed_data';
 
-import 'package:firebase/firestore.dart' as fs;
 import 'package:firestore_api/firestore_api.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' as fs;
 import 'dart:async';
 
 class DataWrapperImpl extends DataWrapper {
@@ -13,8 +13,10 @@ class DataWrapperImpl extends DataWrapper {
       return wrapMap(Map.castFrom(value));
     } else if (value is List) {
       return wrapList(List.castFrom(value));
+    } else if (value is fs.Timestamp) {
+      return value.toDate();
     } else if (value is fs.Blob) {
-      return Blob(value.toUint8Array());
+      return _BlobImpl(value.bytes);
     } else {
       return value;
     }
@@ -28,17 +30,19 @@ class DataWrapperImpl extends DataWrapper {
       return unwrapFieldValue(value);
     } else if (value is Map) {
       return unwrapMap(value);
+    } else if (value is DateTime) {
+      return fs.Timestamp.fromDate(value);
     } else if (value is List) {
       return unwrapList(value);
-    } else if (value is Blob) {
-      return fs.Blob.fromUint8Array(value.bytes);
+    } else if (value is _BlobImpl) {
+      return fs.Blob(value.bytes);
     } else {
       return value;
     }
   }
 
   @override
-  unwrapFieldValue(FieldValue fieldValue) {
+  dynamic unwrapFieldValue(FieldValue fieldValue) {
     switch (fieldValue.type) {
       case FieldValueType.increment:
         return fs.FieldValue.increment(fieldValue.value);
@@ -57,6 +61,10 @@ class DataWrapperImpl extends DataWrapper {
 
 final DataWrapper _dataWrapper = DataWrapperImpl();
 
+class _BlobImpl extends Blob {
+  _BlobImpl(Uint8List l) : super(l);
+}
+
 class _DocumentSnapshotImpl extends DocumentSnapshot {
   final fs.DocumentSnapshot _documentSnapshot;
 
@@ -64,26 +72,27 @@ class _DocumentSnapshotImpl extends DocumentSnapshot {
 
   @override
   Map<String, dynamic> get data {
-    return _dataWrapper.wrapMap(_documentSnapshot.data());
+    return _dataWrapper.wrapMap(_documentSnapshot.data);
   }
 
   @override
-  String get documentID => _documentSnapshot.id;
+  String get documentID => _documentSnapshot.documentID;
 
   @override
   bool get exists => _documentSnapshot.exists;
 
   @override
-  DocumentReference get ref => _DocumentReferenceImpl(_documentSnapshot.ref);
+  DocumentReference get ref =>
+      _DocumentReferenceImpl(_documentSnapshot.reference);
 
   @override
   DocumentReference get reference =>
-      _DocumentReferenceImpl(_documentSnapshot.ref);
+      _DocumentReferenceImpl(_documentSnapshot.reference);
 
   @override
   SnapshotMetadata get metadata => SnapshotMetadata(
       _documentSnapshot.metadata.hasPendingWrites,
-      _documentSnapshot.metadata.fromCache);
+      _documentSnapshot.metadata.isFromCache);
 }
 
 class _DocumentChangeImpl extends DocumentChange {
@@ -92,7 +101,8 @@ class _DocumentChangeImpl extends DocumentChange {
   _DocumentChangeImpl(this._documentChange);
 
   @override
-  DocumentSnapshot get document => _DocumentSnapshotImpl(_documentChange.doc);
+  DocumentSnapshot get document =>
+      _DocumentSnapshotImpl(_documentChange.document);
 
   @override
   int get newIndex => _documentChange.newIndex;
@@ -103,11 +113,11 @@ class _DocumentChangeImpl extends DocumentChange {
   @override
   DocumentChangeType get type {
     switch (_documentChange.type) {
-      case "added":
+      case fs.DocumentChangeType.added:
         return DocumentChangeType.added;
-      case "modified":
+      case fs.DocumentChangeType.modified:
         return DocumentChangeType.modified;
-      case "removed":
+      case fs.DocumentChangeType.removed:
         return DocumentChangeType.removed;
     }
     throw Exception("Unknown type ${_documentChange.type}");
@@ -120,22 +130,21 @@ class _QuerySnapshotImpl extends QuerySnapshot {
   _QuerySnapshotImpl(this._querySnapshot);
 
   @override
-  List<DocumentChange> get documentChanges => _querySnapshot
-      .docChanges()
+  List<DocumentChange> get documentChanges => _querySnapshot.documentChanges
       .map((docChange) => _DocumentChangeImpl(docChange))
       .toList();
 
   @override
-  List<DocumentSnapshot> get documents => _querySnapshot.docs
+  List<DocumentSnapshot> get documents => _querySnapshot.documents
       .map((snapshot) => _DocumentSnapshotImpl(snapshot))
       .toList();
 
   @override
-  bool get empty => _querySnapshot.empty;
+  bool get empty => _querySnapshot.documents.isEmpty;
 
   @override
   void forEach(onEach) {
-    _querySnapshot.docs.forEach((snapshot) {
+    _querySnapshot.documents.forEach((snapshot) {
       onEach(_DocumentSnapshotImpl(snapshot));
     });
   }
@@ -143,7 +152,7 @@ class _QuerySnapshotImpl extends QuerySnapshot {
   @override
   SnapshotMetadata get metadata => SnapshotMetadata(
       _querySnapshot.metadata.hasPendingWrites,
-      _querySnapshot.metadata.fromCache);
+      _querySnapshot.metadata.isFromCache);
 }
 
 class _DocumentReferenceImpl extends DocumentReference {
@@ -168,31 +177,33 @@ class _DocumentReferenceImpl extends DocumentReference {
   }
 
   @override
-  String get documentID => _documentReference.id;
+  String get documentID => _documentReference.documentID;
 
   @override
   String get path => _documentReference.path;
 
   @override
   Future<void> setData(Map<String, dynamic> data, {bool merge = false}) {
-    return _documentReference.set(
-        _dataWrapper.unwrapMap(data), fs.SetOptions(merge: merge));
+    return _documentReference.setData(_dataWrapper.unwrapMap(data),
+        merge: merge);
   }
 
   @override
   Stream<DocumentSnapshot> get snapshots {
-    return _documentReference.onSnapshot
+    return _documentReference
+        .snapshots()
         .map((snapshot) => _DocumentSnapshotImpl(snapshot));
   }
 
   @override
   Future<void> update(Map<String, dynamic> data) {
-    return _documentReference.update(data: _dataWrapper.unwrapMap(data));
+    return _documentReference.updateData(_dataWrapper.unwrapMap(data));
   }
 
   @override
-  CollectionReference get parent =>
-      _CollectionReferenceImpl(_documentReference.parent);
+  CollectionReference get parent {
+    return _CollectionReferenceImpl(_documentReference.parent());
+  }
 }
 
 class _CollectionReferenceImpl extends _QueryImpl
@@ -210,12 +221,25 @@ class _CollectionReferenceImpl extends _QueryImpl
 
   @override
   DocumentReference document([String path]) {
-    return _DocumentReferenceImpl(_collectionReference.doc(path));
+    return _DocumentReferenceImpl(_collectionReference.document(path));
   }
 
   @override
-  DocumentReference get parent =>
-      _DocumentReferenceImpl(_collectionReference.parent);
+  DocumentReference get parent {
+    return _DocumentReferenceImpl(_collectionReference.parent());
+  }
+}
+
+fs.Source _remapSource(Source source) {
+  switch (source) {
+    case Source.serverAndCache:
+      return fs.Source.serverAndCache;
+    case Source.cache:
+      return fs.Source.cache;
+    case Source.server:
+      return fs.Source.server;
+  }
+  throw Exception("unknown source: $source");
 }
 
 class _QueryImpl extends Query {
@@ -226,10 +250,8 @@ class _QueryImpl extends Query {
   @override
   Future<QuerySnapshot> getDocuments(
       {Source source = Source.serverAndCache}) async {
-    if (source != Source.serverAndCache) {
-      throw Exception("only serverAndCache as Source supported at the moment");
-    }
-    return _QuerySnapshotImpl(await _query.get());
+    return _QuerySnapshotImpl(
+        await _query.getDocuments(source: _remapSource(source)));
   }
 
   @override
@@ -239,15 +261,14 @@ class _QueryImpl extends Query {
 
   @override
   Query orderBy(String field, {bool descending = false}) {
-    return _QueryImpl(_query.orderBy(field, descending ? "desc" : null));
+    return _QueryImpl(_query.orderBy(field, descending: descending));
   }
 
   @override
   Stream<QuerySnapshot> snapshots({bool includeMetadataChanges = false}) {
-    return includeMetadataChanges
-        ? _query.onSnapshotMetadata
-            .map((snapshot) => _QuerySnapshotImpl(snapshot))
-        : _query.onSnapshot.map((snapshot) => _QuerySnapshotImpl(snapshot));
+    return _query
+        .snapshots(includeMetadataChanges: includeMetadataChanges)
+        .map((snapshot) => _QuerySnapshotImpl(snapshot));
   }
 
   @override
@@ -259,84 +280,59 @@ class _QueryImpl extends Query {
       isGreaterThanOrEqualTo,
       arrayContains,
       bool isNull}) {
-    String compareOperator = "";
-    var value = null;
-    if (isEqualTo != null) {
-      compareOperator = "==";
-      value = isEqualTo;
-    } else if (isLessThan != null) {
-      compareOperator = "<";
-      value = isLessThan;
-    } else if (isLessThanOrEqualTo != null) {
-      compareOperator = "<=";
-      value = isLessThanOrEqualTo;
-    } else if (isGreaterThan != null) {
-      compareOperator = ">";
-      value = isGreaterThan;
-    } else if (isGreaterThanOrEqualTo != null) {
-      compareOperator = ">=";
-      value = isGreaterThanOrEqualTo;
-    } else if (arrayContains != null) {
-      compareOperator = "array-contains";
-      value = arrayContains;
-    }
-    if (compareOperator.isEmpty) {
-      return this;
-    }
-    value = _dataWrapper.unwrapValue(value);
-    return _QueryImpl(_query.where(field, compareOperator, value));
-  }
-
-  @override
-  Query endAt(List values) {
-    return _QueryImpl(
-        _query.endAt(fieldValues: _dataWrapper.unwrapList(values)));
+    return _QueryImpl(_query.where(field,
+        isEqualTo: _dataWrapper.unwrapValue(isEqualTo),
+        isGreaterThan: _dataWrapper.unwrapValue(isGreaterThan),
+        isGreaterThanOrEqualTo:
+            _dataWrapper.unwrapValue(isGreaterThanOrEqualTo),
+        isLessThan: _dataWrapper.unwrapValue(isLessThan),
+        isLessThanOrEqualTo: _dataWrapper.unwrapValue(isLessThanOrEqualTo),
+        isNull: _dataWrapper.unwrapValue(isNull),
+        arrayContains: _dataWrapper.unwrapValue(arrayContains)));
   }
 
   @override
   Query endAtDocument(DocumentSnapshot documentSnapshot) {
-    return _QueryImpl(_query.endAt(
-        snapshot:
-            (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot));
-  }
-
-  @override
-  Query endBefore(List values) {
     return _QueryImpl(
-        _query.endBefore(fieldValues: _dataWrapper.unwrapList(values)));
+        _query.endAtDocument(_dataWrapper.unwrapValue(documentSnapshot)));
   }
 
   @override
   Query endBeforeDocument(DocumentSnapshot documentSnapshot) {
-    return _QueryImpl(_query.endBefore(
-        snapshot:
-            (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot));
-  }
-
-  @override
-  Query startAfter(List values) {
     return _QueryImpl(
-        _query.startAfter(fieldValues: _dataWrapper.unwrapList(values)));
+        _query.endBeforeDocument(_dataWrapper.unwrapValue(documentSnapshot)));
   }
 
   @override
   Query startAfterDocument(DocumentSnapshot documentSnapshot) {
-    return _QueryImpl(_query.startAfter(
-        snapshot:
-            (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot));
-  }
-
-  @override
-  Query startAt(List values) {
     return _QueryImpl(
-        _query.startAt(fieldValues: _dataWrapper.unwrapList(values)));
+        _query.startAfterDocument(_dataWrapper.unwrapValue(documentSnapshot)));
   }
 
   @override
   Query startAtDocument(DocumentSnapshot documentSnapshot) {
-    return _QueryImpl(_query.startAt(
-        snapshot:
-            (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot));
+    return _QueryImpl(
+        _query.startAtDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+  }
+
+  @override
+  Query endAt(List<dynamic> values) {
+    return _QueryImpl(_query.endAt(_dataWrapper.unwrapValue(values)));
+  }
+
+  @override
+  Query endBefore(List<dynamic> values) {
+    return _QueryImpl(_query.endBefore(_dataWrapper.unwrapValue(values)));
+  }
+
+  @override
+  Query startAfter(List<dynamic> values) {
+    return _QueryImpl(_query.startAfter(_dataWrapper.unwrapValue(values)));
+  }
+
+  @override
+  Query startAt(List<dynamic> values) {
+    return _QueryImpl(_query.startAt(_dataWrapper.unwrapValue(values)));
   }
 }
 
@@ -358,14 +354,16 @@ class _WriteBatch extends WriteBatch {
   @override
   void setData(DocumentReference document, Map<String, dynamic> data,
       {bool merge = false}) {
-    _writeBatch.set((document as _DocumentReferenceImpl)._documentReference,
-        _dataWrapper.unwrapMap(data), fs.SetOptions(merge: merge));
+    _writeBatch.setData((document as _DocumentReferenceImpl)._documentReference,
+        _dataWrapper.unwrapMap(data),
+        merge: merge);
   }
 
   @override
   void updateData(DocumentReference document, Map<String, dynamic> data) {
-    _writeBatch.update((document as _DocumentReferenceImpl)._documentReference,
-        data: _dataWrapper.unwrapMap(data));
+    _writeBatch.updateData(
+        (document as _DocumentReferenceImpl)._documentReference,
+        _dataWrapper.unwrapMap(data));
   }
 }
 
@@ -400,14 +398,14 @@ class _Transaction extends Transaction {
       DocumentReference documentReference, Map<String, dynamic> data) async {
     await _transaction.update(
         (documentReference as _DocumentReferenceImpl)._documentReference,
-        data: _dataWrapper.unwrapMap(data));
+        _dataWrapper.unwrapMap(data));
   }
 }
 
 class FirestoreImpl extends Firestore {
-  final fs.Firestore _firestore;
+  final fs.Firestore _firestore = fs.Firestore.instance;
 
-  FirestoreImpl(this._firestore);
+  static Firestore instance = FirestoreImpl();
 
   @override
   WriteBatch batch() {
@@ -421,7 +419,7 @@ class FirestoreImpl extends Firestore {
 
   @override
   DocumentReference document(String path) {
-    return _DocumentReferenceImpl(_firestore.doc(path));
+    return _DocumentReferenceImpl(_firestore.document(path));
   }
 
   @override
@@ -429,7 +427,7 @@ class FirestoreImpl extends Firestore {
       {Duration timeout = const Duration(seconds: 5)}) {
     return _firestore.runTransaction((fs.Transaction transaction) {
       return transactionHandler(_Transaction(transaction));
-    });
+    }, timeout: timeout);
   }
 
   @override
