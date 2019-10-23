@@ -46,6 +46,11 @@ class MapHelper with Helper {
     String srcName = el.name;
     String destName = annotation.alias ?? el.name;
 
+    String defaultValue = '';
+    if (annotation.defaultValue != null) {
+      defaultValue = ' ?? ${annotation.defaultValue}';
+    }
+
     var type = el.type;
 
     if (annotation.ignore || isFunction(type)) {
@@ -53,7 +58,7 @@ class MapHelper with Helper {
     } else {
       return 'data["$destName"] = model.$srcName' +
           _serializeNestedElement(el, annotation) +
-          ';\n';
+          '$defaultValue;\n';
     }
   }
 
