@@ -7,7 +7,59 @@ class Submodel {
   factory Submodel.fromSnapshot(Map<String, dynamic> data) =>
       _$submodelFromSnapshot(data);
   Map<String, dynamic> toMap() => _$submodelToMap(this);
-  Submodel();
+
+  @FirestoreAttribute(ignore: true)
+  int ignoredAttribute;
+
+  @FirestoreAttribute(alias: 'otherName')
+  int number;
+
+  int _privateAttribute;
+
+  Submodel submodel;
+
+  List<int> intList;
+
+  List<Submodel> submodelList;
+
+  //List<List<int>> nestedIntList;
+
+  //List<dynamic> dynamicList;
+
+  //List<List<dynamic>> nestedList;
+
+  //List<List<Submodel>> nestedSubmodelList;
+
+  //ist<List<List<dynamic>>> doublyNestedList;
+
+  Map<String, Submodel> submodelMap;
+
+  //Map<String, dynamic> dynamicMap;
+
+  DateTime dateTime;
+
+  Blob blob;
+
+  Function function;
+
+  Submodel({
+    this.ignoredAttribute,
+    this.number,
+    this.submodel,
+    this.submodelList,
+    this.submodelMap,
+    this.intList,
+    //this.nestedIntList,
+    //this.dynamicList,
+    //this.nestedList,
+    //this.doublyNestedList,
+    //this.dynamicMap
+    this.dateTime,
+    this.blob,
+    this.function,
+  });
+
+  Submodel.defaults();
 }
 
 @FirestoreDocument()
@@ -20,23 +72,33 @@ class Model {
   @FirestoreAttribute(alias: 'otherName')
   int number;
 
+  @FirestoreAttribute(defaultValue: [1, 2, 3])
+  List<int> intListDefaultValue;
+
+  @FirestoreAttribute(defaultValue: 'FOO BAR "BAZ"')
+  String stringDefaultValue;
+
   int _privateAttribute;
 
   Submodel submodel;
 
-  List<Submodel> submodelList;
-
   List<int> intList;
 
-  List<dynamic> dynamicList;
+  List<Submodel> submodelList;
 
-  List<List<dynamic>> nestedList;
+  //List<List<int>> nestedIntList;
 
-  List<List<List<dynamic>>> doublyNestedList;
+  //List<dynamic> dynamicList;
+
+  //List<List<dynamic>> nestedList;
+
+  //List<List<Submodel>> nestedSubmodelList;
+
+  //ist<List<List<dynamic>>> doublyNestedList;
 
   Map<String, Submodel> submodelMap;
 
-  Map<String, dynamic> dynamicMap;
+  //Map<String, dynamic> dynamicMap;
 
   DateTime dateTime;
 
@@ -50,12 +112,15 @@ class Model {
     this.number,
     this.submodel,
     this.submodelList,
-    this.intList,
-    this.dynamicList,
-    this.nestedList,
-    this.doublyNestedList,
     this.submodelMap,
-    this.dynamicMap,
+    this.intList,
+    this.intListDefaultValue,
+    this.stringDefaultValue,
+    //this.nestedIntList,
+    //this.dynamicList,
+    //this.nestedList,
+    //this.doublyNestedList,
+    //this.dynamicMap
     this.dateTime,
     this.blob,
     this.function,

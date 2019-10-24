@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 
@@ -41,6 +39,14 @@ mixin Helper {
     }
   }
 
+  _isSimpleElementGeneric(DartType type) =>
+      type.isDartCoreBool ||
+      type.isDartCoreDouble ||
+      type.isDartCoreInt ||
+      type.isDynamic ||
+      _isString(type) ||
+      _isDateTime(type);
+
   bool _isDateTime(DartType type) => type.name == 'DateTime';
 
   bool _isString(DartType type) => type.name == 'String';
@@ -50,22 +56,22 @@ mixin Helper {
   bool _isGeoPoint(DartType type) => type.name == 'GeoPoint';
   bool _isBlob(DartType type) => type.name == 'Blob';
 
-  bool isSimpleElement(FieldElement el) {
-    DartType t = el.type;
-    return t.isDartCoreBool ||
-        t.isDartCoreDouble ||
-        t.isDartCoreInt ||
-        t.isDartCoreNull ||
-        t.isDynamic ||
-        _isString(t) ||
-        _isDateTime(t) ||
-        _isDocumentRef(t) ||
-        _isCollectionRef(t) ||
-        _isGeoPoint(t) ||
-        _isBlob(t);
+  bool isSimpleElement(DartType type) {
+    return type != null &&
+        (type.isDartCoreNull ||
+            _isSimpleElementGeneric(type) ||
+            _isDocumentRef(type) ||
+            _isCollectionRef(type) ||
+            _isGeoPoint(type) ||
+            _isBlob(type));
   }
 
+  bool isDynamicElement(DartType type) => type.isDynamic;
+
+  bool isFunction(DartType type) => type != null && type.isDartCoreFunction;
+
   bool isFirestoreElement(DartType type) {
+    if (type == null) return false;
     var meta = type.element.metadata;
     if (meta.length > 0) {
       for (var m in meta) {
@@ -82,37 +88,48 @@ mixin Helper {
   _containsFirestoreElement(List<DartType> types) =>
       types.where((DartType type) => isFirestoreElement(type)).length > 0;
 
-  bool isFirestoreElementList(FieldElement el) {
-    if (el.type is ParameterizedType && el.type.name == 'List') {
-      List<DartType> types = (el.type as ParameterizedType).typeArguments;
+  @deprecated
+  bool isFirestoreElementList(DartType type) {
+    if (type is ParameterizedType && type.name == 'List') {
+      List<DartType> types = type.typeArguments;
       return types.length == 1 && _containsFirestoreElement(types);
     }
     return false;
   }
 
   bool _containsSimpleElement(List<DartType> types) =>
-      types
-          .where((DartType t) =>
-              t.isDartCoreBool ||
-              t.isDartCoreDouble ||
-              t.isDartCoreInt ||
-              t.isDynamic ||
-              _isString(t) ||
-              _isDateTime(t))
-          .length >
-      0;
+      types.where((DartType type) => _isSimpleElementGeneric(type)).length > 0;
 
-  bool isSimpleElementList(FieldElement el) {
-    if (el.type is ParameterizedType && el.type.name == 'List') {
-      List<DartType> types = (el.type as ParameterizedType).typeArguments;
+  @deprecated
+  bool isSimpleElementList(DartType type) {
+    if (type is ParameterizedType && type.name == 'List') {
+      List<DartType> types = type.typeArguments;
       return types.length == 1 && _containsSimpleElement(types);
     }
     return false;
   }
 
-  String getTypeOfGenericList(FieldElement el) {
-    if (el.type is ParameterizedType && el.type.name == 'List') {
-      List<DartType> types = (el.type as ParameterizedType).typeArguments;
+  isListElement(DartType type) {
+    if (type != null) {
+      return type.name == 'List';
+    } else {
+      return false;
+    }
+  }
+
+  isMapElement(DartType type) {
+    if (type != null) {
+      return type.name == 'Map';
+    } else {
+      return false;
+    }
+  }
+
+  isNestedElement(DartType type) => isListElement(type) || isMapElement(type);
+
+  String getTypeOfGenericList(DartType type) {
+    if (type is ParameterizedType && type.name == 'List') {
+      List<DartType> types = type.typeArguments;
       if (types.length == 1) {
         return types.first.element.name;
       }
@@ -120,42 +137,40 @@ mixin Helper {
     return '';
   }
 
-  bool _isNestedType(DartType t) =>
-      t.name != null && (t.name == 'List' || t.name == 'Map');
+  DartType getTypeOfElement(Element el) {
+    if (el is FieldElement) {
+      return el.type;
+    } else if (el is ClassElement) {
+      return el.type;
+    } else {
+      return null;
+    }
+  }
 
   List<DartType> _containsNestedType(List<DartType> types) =>
-      types.where((DartType t) => _isNestedType(t)).toList();
+      types.where((DartType t) => isNestedElement(t)).toList();
 
-  Element getNestedElement(Element el) {
-    bool isNested = false;
-    List types;
-
-    if (el is FieldElement) {
-      if (el.type.isDartCoreFunction) return null;
-      isNested = el.type is ParameterizedType &&
-          (el.type.name == 'List' || el.type.name == 'Map');
-      types = (el.type as ParameterizedType).typeArguments;
-    } else if (el is ClassElement) {
-      isNested = (el.type.name == 'List' || el.type.name == 'Map');
-      types = el.type?.typeArguments;
-    }
-
-    if (isNested && types != null) {
-      List<DartType> listTypes = _containsNestedType(types);
-      if (listTypes != null && listTypes.length == 1) {
-        var listType = listTypes.first;
-        return listType.element;
+  Element getNestedElement(DartType type) {
+    if (type is ParameterizedType) {
+      if (type.name == 'Map') {
+        List<DartType> types = type.typeArguments;
+        if (types.length == 2) {
+          return types.last.element;
+        }
+      } else if (type.name == 'List') {
+        List<DartType> types = type.typeArguments;
+        if (types.length == 1) {
+          return types.first.element;
+        }
       }
     }
-
     return null;
   }
 
-  isNestedElement(Element el) => getNestedElement(el) != null;
-
-  bool isFirestoreElementMap(FieldElement el) {
-    if (el.type is ParameterizedType && el.type.name == 'Map') {
-      List<DartType> types = (el.type as ParameterizedType).typeArguments;
+  @deprecated
+  bool isFirestoreElementMap(DartType type) {
+    if (type is ParameterizedType && type.name == 'Map') {
+      List<DartType> types = type.typeArguments;
       return types.length == 2 &&
           types.first.name == 'String' &&
           _containsFirestoreElement(types);
@@ -163,6 +178,18 @@ mixin Helper {
     return false;
   }
 
+  @deprecated
+  bool isDynamicElementMap(DartType type) {
+    if (type is ParameterizedType && type.name == 'Map') {
+      List<DartType> types = type.typeArguments;
+      return types.length == 2 &&
+          _isString(types.first) &&
+          _isSimpleElementGeneric(types.last);
+    }
+    return false;
+  }
+
+  @deprecated
   String getTypeOfGenericMap(FieldElement el) {
     if (el.type is ParameterizedType && el.type.name == 'Map') {
       List<DartType> types = (el.type as ParameterizedType).typeArguments;
@@ -171,22 +198,5 @@ mixin Helper {
       }
     }
     return '';
-  }
-
-  _isSimpleElementGeneric(DartType t) =>
-      t.isDartCoreBool ||
-      t.isDartCoreDouble ||
-      t.isDartCoreInt ||
-      t.isDynamic ||
-      _isString(t) ||
-      _isDateTime(t);
-  bool isDynamicElementMap(FieldElement el) {
-    if (el.type is ParameterizedType && el.type.name == 'Map') {
-      List<DartType> types = (el.type as ParameterizedType).typeArguments;
-      return types.length == 2 &&
-          types.first.name == 'String' &&
-          _isSimpleElementGeneric(types.last);
-    }
-    return false;
   }
 }

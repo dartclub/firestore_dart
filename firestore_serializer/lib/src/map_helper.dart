@@ -7,29 +7,36 @@ class MapHelper with Helper {
 
   MapHelper(this.subdocument);
 
-// TODO return type information + converter functions
   String _serializeNestedElement(Element el, AnnotationHelper annotation) {
-    ClassElement subEl = getNestedElement(el) as ClassElement;
+    var type = getTypeOfElement(el);
 
-    if (isNestedElement(subEl)) {
-      // TODO
-      String pre = '.map(()=>';
-      String post = ')';
-      _serializeNestedElement(subEl, annotation); // TODO
+    if (isNestedElement(type)) {
+      Element subEl = getNestedElement(type);
+      String inner = _serializeNestedElement(subEl, annotation);
+      if (inner.isEmpty) {
+        return '';
+      } else {
+        if (isListElement(type)) {
+          return '/*${type.displayName}*/.map((data)=>data$inner)';
+        } else if (isMapElement(type)) {
+          return '/*${type.displayName}*/.map((key, value) => MapEntry(key, value$inner))';
+        } else {
+          throw Exception('unsupported type ${type?.name}');
+        }
+      }
     } else {
-      // TODO if (isSimpleElement / firestoreDocument etc.)
-      return '';
+      return _serializeSimpleElement(el, annotation);
     }
-    return '';
   }
 
-  String _serializeSimpleElement(FieldElement el, AnnotationHelper annotation) {
-    if (isSimpleElement(el)) {
+  String _serializeSimpleElement(Element el, AnnotationHelper annotation) {
+    var type = getTypeOfElement(el);
+    if (isSimpleElement(type)) {
       return '';
-    } else if (isFirestoreElement(el.type)) {
+    } else if (isFirestoreElement(type)) {
       return '.toMap()';
     } else {
-      return '';
+      throw Exception('unsupported type ${type?.name}');
     }
   }
 
@@ -38,37 +45,20 @@ class MapHelper with Helper {
 
     String srcName = el.name;
     String destName = annotation.alias ?? el.name;
-    String pre = 'data["$destName"] = model.$srcName';
-    String serialized = '';
-    String post = ';\n';
 
-    if (annotation.ignore) {
-      return '\t// ignoring attribute \'${el.type.name} $srcName\'\n';
+    String defaultValue = '';
+    if (annotation.defaultValue != null) {
+      defaultValue = ' ?? ${annotation.defaultValue}';
+    }
+
+    var type = el.type;
+
+    if (annotation.ignore || isFunction(type)) {
+      return '\t// ignoring attribute \'${type.name} $srcName\'\n';
     } else {
-      /*if (isFirestoreElementList(el)) {
-        String type = getTypeOfGenericList(el);
-        line += '.map(($type el) => el.toMap()).toList()';
-      } else if (isSimpleElementList(el)) {
-        line += '.toList()';
-      } else if (isFirestoreElementMap(el)) {
-        String type = getTypeOfGenericMap(el);
-        line +=
-            '.map<String,Map<String,dynamic>>((String k, $type v) => MapEntry(k, v.toMap()))';
-      } else if (isNestedElement(el)) {
-        line += _serializeNestedElement(el);
-      } 
-      else if(isDynamicMap(el){
-        // line += '';
-      }
-      else {
-        return '\t// ignoring attribute \'${el.type.name} $srcName\'\n';
-      }*/
-      if (isNestedElement(el)) {
-        serialized = _serializeNestedElement(el, annotation);
-      } else if (isSimpleElement(el) || isFirestoreElement(el.type)) {
-        serialized = _serializeSimpleElement(el, annotation);
-      }
-      return '$pre$serialized$post';
+      return 'data["$destName"] = model.$srcName' +
+          _serializeNestedElement(el, annotation) +
+          '$defaultValue;\n';
     }
   }
 

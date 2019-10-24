@@ -18,7 +18,8 @@ class FirestoreDocumentGenerator
           element: element);
     }
 
-    return _Generator(this, element as ClassElement, annotation, false).generate();
+    return _Generator(this, element as ClassElement, annotation, false)
+        .generate();
   }
 }
 
@@ -40,14 +41,13 @@ class FirestoreSubdocumentGenerator
 }
 
 class _Generator {
-  final FirestoreDocumentGenerator;
+  final GeneratorForAnnotation generator;
   final ClassElement element;
   final ConstantReader annotation;
   final bool subdocument;
 
   Set<String> fields = <String>{};
-  _Generator(this.FirestoreDocumentGenerator, this.element, this.annotation,
-      this.subdocument);
+  _Generator(this.generator, this.element, this.annotation, this.subdocument);
   Iterable<String> generate() sync* {
     final className = element.name;
 
@@ -65,7 +65,8 @@ class _Generator {
       }
     }
 
-    yield* SnapshotHelper(subdocument).createFromSnapshot(accessibleFields, className);
+    yield* SnapshotHelper(subdocument)
+        .createFromSnapshot(accessibleFields, className);
 
     yield* MapHelper(subdocument).createToMap(accessibleFields, className);
   }
