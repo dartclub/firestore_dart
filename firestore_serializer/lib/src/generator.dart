@@ -1,4 +1,5 @@
 import 'package:build/build.dart';
+import 'package:firestore_serializer/src/annotation_helper.dart';
 import 'package:firestore_serializer/src/map_helper.dart';
 import 'package:firestore_serializer/src/snapshot_helper.dart';
 import 'package:source_gen/source_gen.dart';
@@ -18,24 +19,7 @@ class FirestoreDocumentGenerator
           element: element);
     }
 
-    return _Generator(this, element as ClassElement, annotation, false)
-        .generate();
-  }
-}
-
-class FirestoreSubdocumentGenerator
-    extends GeneratorForAnnotation<FirestoreSubdocument> {
-  @override
-  Iterable<String> generateForAnnotatedElement(
-      Element element, ConstantReader annotation, BuildStep buildStep) {
-    if (element is! ClassElement) {
-      final name = element.name;
-      throw InvalidGenerationSourceError('Generator cannot target `$name`.',
-          todo: 'Remove the FirestoreDocument annotation from `$name`.',
-          element: element);
-    }
-
-    return _Generator(this, element as ClassElement, annotation, true)
+    return _Generator(this, element as ClassElement, annotation)
         .generate();
   }
 }
@@ -44,12 +28,12 @@ class _Generator {
   final GeneratorForAnnotation generator;
   final ClassElement element;
   final ConstantReader annotation;
-  final bool subdocument;
 
   Set<String> fields = <String>{};
-  _Generator(this.generator, this.element, this.annotation, this.subdocument);
+  _Generator(this.generator, this.element, this.annotation);
   Iterable<String> generate() sync* {
     final className = element.name;
+    ClassAnnotationHelper annotationHelper = ClassAnnotationHelper(element);
 
     final accessibleFields = <FieldElement>[];
 
@@ -65,9 +49,12 @@ class _Generator {
       }
     }
 
-    yield* SnapshotHelper(subdocument)
-        .createFromSnapshot(accessibleFields, className);
+    SnapshotHelper snapshotHelper = SnapshotHelper();
+    yield* snapshotHelper
+        .createFromSnapshot(accessibleFields, className, annotationHelper.hasSelfRef);
+    yield* snapshotHelper
+        .createFromMap(accessibleFields, className);
 
-    yield* MapHelper(subdocument).createToMap(accessibleFields, className);
+    yield* MapHelper().createToMap(accessibleFields, className);
   }
 }

@@ -3,11 +3,9 @@ import 'package:firestore_serializer/src/annotation_helper.dart';
 import 'package:firestore_serializer/src/helper.dart';
 
 class MapHelper with Helper {
-  final bool subdocument;
+  MapHelper();
 
-  MapHelper(this.subdocument);
-
-  String _serializeNestedElement(Element el, AnnotationHelper annotation) {
+  String _serializeNestedElement(Element el, FieldAnnotationHelper annotation) {
     var type = getTypeOfElement(el);
 
     if (isNestedElement(type)) {
@@ -17,11 +15,11 @@ class MapHelper with Helper {
         return '';
       } else {
         if (isListElement(type)) {
-          return '/*${type.displayName}*/.map((data)=>data$inner)';
+          return '.map((data)=>data$inner)';
         } else if (isMapElement(type)) {
-          return '/*${type.displayName}*/.map((key, value) => MapEntry(key, value$inner))';
+          return '.map((key, value) => MapEntry(key, value$inner))';
         } else {
-          throw Exception('unsupported type ${type?.name}');
+          throw Exception('unsupported type ${type?.name} during serialize');
         }
       }
     } else {
@@ -29,11 +27,11 @@ class MapHelper with Helper {
     }
   }
 
-  String _serializeSimpleElement(Element el, AnnotationHelper annotation) {
+  String _serializeSimpleElement(Element el, FieldAnnotationHelper annotation) {
     var type = getTypeOfElement(el);
-    if (isSimpleElement(type)) {
+    if (isFirestoreDataType(type)) {
       return '';
-    } else if (isFirestoreElement(type)) {
+    } else if (hasFirestoreDocumentAnnotation(type)) {
       return '.toMap()';
     } else {
       throw Exception('unsupported type ${type?.name}');
@@ -41,7 +39,7 @@ class MapHelper with Helper {
   }
 
   String serializeElement(FieldElement el) {
-    AnnotationHelper annotation = AnnotationHelper(el);
+    FieldAnnotationHelper annotation = FieldAnnotationHelper(el);
 
     String srcName = el.name;
     String destName = annotation.alias ?? el.name;
@@ -64,11 +62,14 @@ class MapHelper with Helper {
 
   Iterable<String> createToMap(
       List<FieldElement> accessibleFields, String className) sync* {
-    yield 'Map<String, dynamic> ${createSuffix(className)}ToMap($className model)';
-    yield '{\nMap<String, dynamic> data = {};\n';
+    StringBuffer buffer = StringBuffer();
+    buffer.writeln(
+        'Map<String, dynamic> ${createSuffix(className)}ToMap($className model)');
+    buffer.writeln('{\nMap<String, dynamic> data = {};');
     for (var el in accessibleFields) {
-      yield serializeElement(el);
+      buffer.writeln(serializeElement(el));
     }
-    yield 'return data;\n}';
+    buffer.writeln('return data;}');
+    yield buffer.toString();
   }
 }

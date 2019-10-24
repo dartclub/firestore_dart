@@ -3,17 +3,15 @@ import 'package:firestore_serializer/src/annotation_helper.dart';
 import 'package:firestore_serializer/src/helper.dart';
 
 class SnapshotHelper with Helper {
-  final bool subdocument;
+  SnapshotHelper();
 
-  SnapshotHelper(this.subdocument);
-
-  String _serializeNestedElement(
-      Element el, AnnotationHelper annotation, String data) {
+  String _deserializeNestedElement(
+      Element el, FieldAnnotationHelper annotation, String data) {
     var type = getTypeOfElement(el);
 
     if (isNestedElement(type)) {
       Element subEl = getNestedElement(type);
-      String inner = _serializeNestedElement(subEl, annotation, 'data');
+      String inner = _deserializeNestedElement(subEl, annotation, 'data');
       if (inner.isEmpty) {
         return '';
       } else {
@@ -26,29 +24,28 @@ class SnapshotHelper with Helper {
         }
       }
     } else {
-      return _serializeSimpleElement(el, annotation, data);
+      return _deserializeSimpleElement(el, annotation, data);
     }
   }
 
-  String _serializeSimpleElement(
-      Element el, AnnotationHelper annotation, String data) {
+  String _deserializeSimpleElement(
+      Element el, FieldAnnotationHelper annotation, String data) {
     var type = getTypeOfElement(el);
-    if (isSimpleElement(type)) {
+    if (isFirestoreDataType(type)) {
       return data;
-    } else if (isFirestoreElement(type)) {
-      return '$type.fromSnapshot($data)';
+    } else if (hasFirestoreDocumentAnnotation(type)) {
+      return '${createSuffix(type.name)}FromMap($data)';
     } else {
-      throw Exception('unsupported type ${type?.name}');
+      throw Exception('unsupported type ${type?.name} during deserialize');
     }
   }
 
-  String serializeElement(FieldElement el) {
-    AnnotationHelper annotation = AnnotationHelper(el);
+  String deserializeElement(FieldElement el, bool fromMap) {
+    FieldAnnotationHelper annotation = FieldAnnotationHelper(el);
 
     String srcName = annotation.alias ?? el.name;
     String destName = el.name;
-    String data =
-        subdocument ? 'data["$srcName"]' : 'snapshot.data["$srcName"]';
+    String data = fromMap ? 'data["$srcName"]' : 'snapshot.data["$srcName"]';
 
     var type = el.type;
 
@@ -56,22 +53,38 @@ class SnapshotHelper with Helper {
       return '\t// ignoring attribute \'${el.type.name} $destName\'';
     } else {
       return '$destName: ' +
-          _serializeNestedElement(el, annotation, data) +
+          _deserializeNestedElement(el, annotation, data) +
           ',';
     }
   }
 
-  Iterable<String> createFromSnapshot(
-      List<FieldElement> accessibleFields, String className) sync* {
-    if (subdocument) {
-      yield '${createSuffix(className)}FromSnapshot(Map<String, dynamic> data)=>$className(';
-    } else {
-      yield '$className ${createSuffix(className)}FromSnapshot(DocumentSnapshot snapshot)=>$className(';
-      yield 'selfRef: snapshot.reference,';
+  Iterable<String> createFromSnapshot(List<FieldElement> accessibleFields,
+      String className, bool hasSelfRef) sync* {
+    StringBuffer buffer = StringBuffer();
+    buffer.writeln(
+        '$className ${createSuffix(className)}FromSnapshot(DocumentSnapshot snapshot)=>$className(');
+    if (hasSelfRef) {
+      buffer.writeln('selfRef: snapshot.reference');
+      if (accessibleFields.isNotEmpty) {
+        buffer.write(",");
+      }
     }
     for (var el in accessibleFields) {
-      yield serializeElement(el);
+      buffer.writeln(deserializeElement(el, false));
     }
-    yield ');';
+    buffer.writeln(');');
+    yield buffer.toString();
+  }
+
+  Iterable<String> createFromMap(
+      List<FieldElement> accessibleFields, String className) sync* {
+    StringBuffer buffer = StringBuffer();
+    buffer.writeln(
+        '${createSuffix(className)}FromMap(Map<String, dynamic> data)=> data == null ? null : $className(');
+    for (var el in accessibleFields) {
+      buffer.writeln(deserializeElement(el, true));
+    }
+    buffer.writeln(');');
+    yield buffer.toString();
   }
 }

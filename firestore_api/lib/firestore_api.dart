@@ -5,7 +5,8 @@ import 'dart:async';
 import 'dart:typed_data';
 
 typedef OnEachDocumentSnapshot = Function(DocumentSnapshot snapshot);
-typedef TransactionHandler = Future<Map<String, dynamic>> Function(Transaction transaction);
+typedef TransactionHandler = Future<Map<String, dynamic>> Function(
+    Transaction transaction);
 
 abstract class DataWrapper {
   dynamic wrapValue(dynamic value);
@@ -106,7 +107,8 @@ abstract class Firestore {
 
   DocumentReference document(String path);
   WriteBatch batch();
-  Future<Map<String, dynamic>> runTransaction(TransactionHandler transactionHandler,
+  Future<Map<String, dynamic>> runTransaction(
+      TransactionHandler transactionHandler,
       {Duration timeout = const Duration(seconds: 5)});
 }
 
@@ -155,7 +157,7 @@ abstract class DocumentReference {
   @override
   int get hashCode => path.hashCode;
 
-  @override 
+  @override
   String toString() {
     return path;
   }
@@ -377,12 +379,8 @@ mixin BatchHelper {
 
 /* with selfRef */
 class FirestoreDocument {
-  const FirestoreDocument();
-}
-
-/* without selfRef */
-class FirestoreSubdocument {
-  const FirestoreSubdocument();
+  final bool hasSelfRef;
+  const FirestoreDocument({this.hasSelfRef = true});
 }
 
 /* Properties*/

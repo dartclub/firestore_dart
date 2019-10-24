@@ -4,30 +4,18 @@ import 'package:firestore_api/firestore_api.dart';
 import 'package:firestore_serializer/src/helper.dart';
 import 'package:firestore_serializer/src/utils.dart' as utils;
 
-class AnnotationHelper with Helper {
-  FieldElement _el;
-  ElementAnnotation _meta;
-  bool _hasFirestoreAttribute = false;
+class FieldAnnotationHelper with Helper {
   FirestoreAttribute attribute = FirestoreAttribute();
+  bool hasFirestoreAttribute;
 
-  AnnotationHelper(FieldElement element) {
-    _el = element;
-    if (_el.metadata.length > 0) {
-      for (var m in _el.metadata) {
-        if (getName(m.element) == 'FirestoreAttribute') {
-          _hasFirestoreAttribute = true;
-          _meta = m;
-        }
-      }
-    }
-    _getParams();
-  }
+  FieldAnnotationHelper(FieldElement _el) {
+    ElementAnnotation firestoreAttributeAnnotation = _el.metadata.firstWhere(
+        (ElementAnnotation el) => getName(el.element) == "FirestoreAttribute",
+        orElse: () => null);
 
-  /// A [Map] between whitespace characters & `\` and their escape sequences.
-
-  _getParams() {
+    hasFirestoreAttribute = firestoreAttributeAnnotation != null;
     if (hasFirestoreAttribute) {
-      DartObject obj = _meta.computeConstantValue();
+      DartObject obj = firestoreAttributeAnnotation.computeConstantValue();
       attribute = FirestoreAttribute(
         ignore: obj.getField('ignore').toBoolValue(),
         nullable:
@@ -41,9 +29,26 @@ class AnnotationHelper with Helper {
     }
   }
 
-  get hasFirestoreAttribute => _hasFirestoreAttribute;
   get ignore => attribute.ignore;
   get nullable => attribute.nullable;
   get alias => attribute.alias;
   get defaultValue => attribute.defaultValue;
+}
+
+class ClassAnnotationHelper with Helper {
+  FirestoreDocument firestoreDocument;
+  bool get hasSelfRef => firestoreDocument.hasSelfRef;
+
+  ClassAnnotationHelper(ClassElement _cl) {
+    ElementAnnotation firestoreDocumentAnnotation = _cl.metadata.firstWhere(
+        (ElementAnnotation el) => getName(el.element) == "FirestoreDocument",
+        orElse: () => null);
+
+    if (firestoreDocumentAnnotation != null) {
+      DartObject obj = firestoreDocumentAnnotation.computeConstantValue();
+
+      firestoreDocument = FirestoreDocument(
+          hasSelfRef: obj.getField("hasSelfRef").toBoolValue());
+    }
+  }
 }

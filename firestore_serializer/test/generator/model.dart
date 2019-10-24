@@ -1,11 +1,10 @@
 import 'package:firestore_api/firestore_api.dart';
 
 part 'model.g.dart';
-
-@FirestoreSubdocument()
+@FirestoreDocument(hasSelfRef: false)
 class Submodel {
-  factory Submodel.fromSnapshot(Map<String, dynamic> data) =>
-      _$submodelFromSnapshot(data);
+  factory Submodel.fromMap(Map<String, dynamic> data) =>
+      _$submodelFromMap(data);
   Map<String, dynamic> toMap() => _$submodelToMap(this);
 
   @FirestoreAttribute(ignore: true)
@@ -28,7 +27,7 @@ class Submodel {
 
   //List<List<dynamic>> nestedList;
 
-  //List<List<Submodel>> nestedSubmodelList;
+  List<List<Submodel>> nestedSubmodelList;
 
   //ist<List<List<dynamic>>> doublyNestedList;
 
@@ -54,6 +53,7 @@ class Submodel {
     //this.nestedList,
     //this.doublyNestedList,
     //this.dynamicMap
+    this.nestedSubmodelList,
     this.dateTime,
     this.blob,
     this.function,
@@ -128,6 +128,9 @@ class Model {
 
   factory Model.fromSnapshot(DocumentSnapshot snapshot) =>
       _$modelFromSnapshot(snapshot);
+
+  factory Model.fromMap(Map<String, dynamic> data) =>
+      _$modelFromMap(data);
 
   Map<String, dynamic> toMap() => _$modelToMap(this);
 }

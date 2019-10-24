@@ -56,7 +56,7 @@ mixin Helper {
   bool _isGeoPoint(DartType type) => type.name == 'GeoPoint';
   bool _isBlob(DartType type) => type.name == 'Blob';
 
-  bool isSimpleElement(DartType type) {
+  bool isFirestoreDataType(DartType type) {
     return type != null &&
         (type.isDartCoreNull ||
             _isSimpleElementGeneric(type) ||
@@ -70,12 +70,12 @@ mixin Helper {
 
   bool isFunction(DartType type) => type != null && type.isDartCoreFunction;
 
-  bool isFirestoreElement(DartType type) {
+  bool hasFirestoreDocumentAnnotation(DartType type) {
     if (type == null) return false;
     var meta = type.element.metadata;
     if (meta.length > 0) {
       for (var m in meta) {
-        if (getName(m.element) == 'FirestoreSubdocument') {
+        if (getName(m.element) == 'FirestoreDocument') {
           return true;
         }
       }
@@ -86,7 +86,7 @@ mixin Helper {
   String getTypeOfFirestoreElement(DartType type) => type.element.displayName;
 
   _containsFirestoreElement(List<DartType> types) =>
-      types.where((DartType type) => isFirestoreElement(type)).length > 0;
+      types.where((DartType type) => hasFirestoreDocumentAnnotation(type)).length > 0;
 
   @deprecated
   bool isFirestoreElementList(DartType type) {
