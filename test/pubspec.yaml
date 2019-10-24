@@ -12,9 +12,14 @@ dependencies:
     path: ../firestore_web
   firestore_api:
     path: ../firestore_api
+  firebase_admin_interop: 
+    path: ../../firebase-admin-interop
 
 dev_dependencies:
   build_runner: ^1.5.0
+  build_test: any
   test: ^1.0.0
+  build_node_compilers: ^0.2.0
+
   firestore_serializer:
     path: ../firestore_serializer

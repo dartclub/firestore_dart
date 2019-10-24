@@ -1,0 +1,11 @@
+targets:
+  $default:
+    sources:
+      - "test/**"
+      - "lib/**"
+    builders:
+      build_node_compilers|entrypoint:
+        generate_for:
+        - "test/**"
+        options:
+          compiler: dart2js
