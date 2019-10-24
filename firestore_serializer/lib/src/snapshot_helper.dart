@@ -2,7 +2,7 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:firestore_serializer/src/annotation_helper.dart';
 import 'package:firestore_serializer/src/helper.dart';
 
-class SnapshotHelper with Helper {
+class SnapshotHelper {
   SnapshotHelper();
 
   String _deserializeNestedElement(
@@ -20,7 +20,8 @@ class SnapshotHelper with Helper {
         } else if (isMapElement(type)) {
           return '$data.map((key, data) => MapEntry(key, $inner))';
         } else {
-          throw Exception('unsupported type ${type?.name}');
+          throw Exception(
+              'unsupported type ${type?.name} during nested deserialize');
         }
       }
     } else {
@@ -32,11 +33,12 @@ class SnapshotHelper with Helper {
       Element el, FieldAnnotationHelper annotation, String data) {
     var type = getTypeOfElement(el);
     if (isFirestoreDataType(type)) {
-      return data;
+      return "/*${type.name} ${el.runtimeType} */$data";
     } else if (hasFirestoreDocumentAnnotation(type)) {
       return '${createSuffix(type.name)}FromMap($data)';
     } else {
-      throw Exception('unsupported type ${type?.name} during deserialize');
+      throw Exception(
+          'unsupported type ${type?.name} ${el.runtimeType} during deserialize');
     }
   }
 

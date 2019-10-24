@@ -25,3 +25,5 @@ doc/api/
 
 android/
 ios/
+firebase-debug.log
+firestore-debug.log

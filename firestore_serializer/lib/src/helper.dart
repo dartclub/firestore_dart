@@ -1,7 +1,7 @@
+
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 
-mixin Helper {
   String createSuffix(String className) =>
       '_\$${className[0].toLowerCase()}${className.substring(1)}';
 
@@ -146,12 +146,13 @@ mixin Helper {
     } else if (el is ClassElement) {
       return el.type;
     } else if (el is TypeParameterElement) {
-      return el.type;
+      return el.type.bound;
     } else {
       return null;
     }
   }
 
+  
   List<DartType> _containsNestedType(List<DartType> types) =>
       types.where((DartType t) => isNestedElement(t)).toList();
 
@@ -204,4 +205,3 @@ mixin Helper {
     }
     return '';
   }
-}

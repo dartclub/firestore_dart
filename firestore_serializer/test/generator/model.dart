@@ -1,7 +1,8 @@
 import 'package:firestore_api/firestore_api.dart';
 
 part 'model.g.dart';
-@FirestoreDocument(hasSelfRef: false)
+
+/*@FirestoreDocument(hasSelfRef: false)
 class Submodel {
   factory Submodel.fromMap(Map<String, dynamic> data) =>
       _$submodelFromMap(data);
@@ -21,13 +22,13 @@ class Submodel {
 
   List<Submodel> submodelList;
 
-  List<List<int>> nestedIntList;
+  //List<List<int>> nestedIntList;
 
   //List<dynamic> dynamicList;
 
   //List<List<dynamic>> nestedList;
 
-  //List<List<Submodel>> nestedSubmodelList;
+  List<List<Submodel>> nestedSubmodelList;
 
   //ist<List<List<dynamic>>> doublyNestedList;
 
@@ -48,12 +49,12 @@ class Submodel {
     this.submodelList,
     this.submodelMap,
     this.intList,
-    this.nestedIntList,
+    //this.nestedIntList,
     //this.dynamicList,
     //this.nestedList,
     //this.doublyNestedList,
     //this.dynamicMap
-    //this.nestedSubmodelList,
+    this.nestedSubmodelList,
     this.dateTime,
     this.blob,
     this.function,
@@ -61,7 +62,7 @@ class Submodel {
 
   Submodel.defaults();
 }
-
+*/
 @FirestoreDocument()
 class Model {
   DocumentReference selfRef;
@@ -72,21 +73,21 @@ class Model {
   @FirestoreAttribute(alias: 'otherName')
   int number;
 
-  @FirestoreAttribute(defaultValue: [1, 2, 3])
-  List<int> intListDefaultValue;
+  //@FirestoreAttribute(defaultValue: [1, 2, 3])
+  //List<int> intListDefaultValue;
 
   @FirestoreAttribute(defaultValue: 'FOO BAR "BAZ"')
   String stringDefaultValue;
 
   int _privateAttribute;
 
-  Submodel submodel;
+  //Submodel submodel;
 
-  List<int> intList;
+  //List<int> intList;
 
-  List<Submodel> submodelList;
+  //List<Submodel> submodelList;
 
-  //List<List<int>> nestedIntList;
+  List<List<int>> nestedIntList;
 
   //List<dynamic> dynamicList;
 
@@ -96,7 +97,7 @@ class Model {
 
   //ist<List<List<dynamic>>> doublyNestedList;
 
-  Map<String, Submodel> submodelMap;
+  //Map<String, Submodel> submodelMap;
 
   //Map<String, dynamic> dynamicMap;
 
@@ -110,13 +111,13 @@ class Model {
     this.selfRef,
     this.ignoredAttribute,
     this.number,
-    this.submodel,
-    this.submodelList,
-    this.submodelMap,
-    this.intList,
-    this.intListDefaultValue,
+    //this.submodel,
+    //this.submodelList,
+    //this.submodelMap,
+    //this.intList,
+    //this.intListDefaultValue,
     this.stringDefaultValue,
-    //this.nestedIntList,
+    this.nestedIntList,
     //this.dynamicList,
     //this.nestedList,
     //this.doublyNestedList,

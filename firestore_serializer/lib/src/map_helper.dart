@@ -2,7 +2,7 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:firestore_serializer/src/annotation_helper.dart';
 import 'package:firestore_serializer/src/helper.dart';
 
-class MapHelper with Helper {
+class MapHelper  {
   MapHelper();
 
   String _serializeNestedElement(Element el, FieldAnnotationHelper annotation) {

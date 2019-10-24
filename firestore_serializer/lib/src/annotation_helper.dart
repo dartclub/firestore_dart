@@ -4,7 +4,7 @@ import 'package:firestore_api/firestore_api.dart';
 import 'package:firestore_serializer/src/helper.dart';
 import 'package:firestore_serializer/src/utils.dart' as utils;
 
-class FieldAnnotationHelper with Helper {
+class FieldAnnotationHelper  {
   FirestoreAttribute attribute = FirestoreAttribute();
   bool hasFirestoreAttribute;
 
@@ -35,7 +35,7 @@ class FieldAnnotationHelper with Helper {
   get defaultValue => attribute.defaultValue;
 }
 
-class ClassAnnotationHelper with Helper {
+class ClassAnnotationHelper {
   FirestoreDocument firestoreDocument;
   bool get hasSelfRef => firestoreDocument.hasSelfRef;
 
