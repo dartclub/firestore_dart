@@ -27,7 +27,7 @@ class Submodel {
 
   //List<List<dynamic>> nestedList;
 
-  List<List<Submodel>> nestedSubmodelList;
+  //List<List<Submodel>> nestedSubmodelList;
 
   //ist<List<List<dynamic>>> doublyNestedList;
 
@@ -53,7 +53,7 @@ class Submodel {
     //this.nestedList,
     //this.doublyNestedList,
     //this.dynamicMap
-    this.nestedSubmodelList,
+    //this.nestedSubmodelList,
     this.dateTime,
     this.blob,
     this.function,

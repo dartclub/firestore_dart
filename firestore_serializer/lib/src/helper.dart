@@ -86,7 +86,10 @@ mixin Helper {
   String getTypeOfFirestoreElement(DartType type) => type.element.displayName;
 
   _containsFirestoreElement(List<DartType> types) =>
-      types.where((DartType type) => hasFirestoreDocumentAnnotation(type)).length > 0;
+      types
+          .where((DartType type) => hasFirestoreDocumentAnnotation(type))
+          .length >
+      0;
 
   @deprecated
   bool isFirestoreElementList(DartType type) {
@@ -141,6 +144,8 @@ mixin Helper {
     if (el is FieldElement) {
       return el.type;
     } else if (el is ClassElement) {
+      return el.type;
+    } else if (el is TypeParameterElement) {
       return el.type;
     } else {
       return null;

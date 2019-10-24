@@ -16,7 +16,7 @@ class SnapshotHelper with Helper {
         return '';
       } else {
         if (isListElement(type)) {
-          return '$data.map((data) => $inner)';
+          return 'List.castFrom($data).map((data) => $inner)';
         } else if (isMapElement(type)) {
           return '$data.map((key, data) => MapEntry(key, $inner))';
         } else {
