@@ -74,7 +74,7 @@ class Model {
 
   @FirestoreAttribute(defaultValue: [1, 2, 3])
   List<int> intListDefaultValue;
-  
+
   @FirestoreAttribute(defaultValue: 'FOO BAR "BAZ"')
   String stringDefaultValue;
 
@@ -115,6 +115,7 @@ class Model {
     this.submodelMap,
     this.intList,
     this.intListDefaultValue,
+    this.stringDefaultValue,
     //this.nestedIntList,
     //this.dynamicList,
     //this.nestedList,

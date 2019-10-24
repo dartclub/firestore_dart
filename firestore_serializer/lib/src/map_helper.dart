@@ -17,9 +17,9 @@ class MapHelper with Helper {
         return '';
       } else {
         if (isListElement(type)) {
-          return '.map((data)=>data$inner)';
+          return '/*${type.displayName}*/.map((data)=>data$inner)';
         } else if (isMapElement(type)) {
-          return '.map((key, value) => MapEntry(key, value$inner))';
+          return '/*${type.displayName}*/.map((key, value) => MapEntry(key, value$inner))';
         } else {
           throw Exception('unsupported type ${type?.name}');
         }
