@@ -21,7 +21,7 @@ class Submodel {
 
   List<Submodel> submodelList;
 
-  //List<List<int>> nestedIntList;
+  List<List<int>> nestedIntList;
 
   //List<dynamic> dynamicList;
 
@@ -48,7 +48,7 @@ class Submodel {
     this.submodelList,
     this.submodelMap,
     this.intList,
-    //this.nestedIntList,
+    this.nestedIntList,
     //this.dynamicList,
     //this.nestedList,
     //this.doublyNestedList,

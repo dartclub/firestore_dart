@@ -20,7 +20,7 @@ doc/api/
 *.js.deps
 *.js.map
 
-.g.dart
+*.g.dart
 .flutter-plugins
 
 android/
