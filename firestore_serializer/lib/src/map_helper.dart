@@ -54,25 +54,21 @@ class MapHelper with Helper {
     var type = el.type;
 
     if (annotation.ignore || isFunction(type)) {
-      return '\t// ignoring attribute \'${type.name} $srcName\'\n';
+      return '\t// ignoring attribute \'${type.name} $srcName\'';
     } else {
       return 'data["$destName"] = model.$srcName' +
           _serializeNestedElement(el, annotation) +
-          '$defaultValue;\n';
+          '$defaultValue;';
     }
   }
 
   Iterable<String> createToMap(
       List<FieldElement> accessibleFields, String className) sync* {
-    final buffer = StringBuffer();
-    buffer.write(
-        'Map<String, dynamic> ${createSuffix(className)}ToMap($className model)');
-    buffer.write('{\nMap<String, dynamic> data = {};\n');
+    yield 'Map<String, dynamic> ${createSuffix(className)}ToMap($className model)';
+    yield '{\nMap<String, dynamic> data = {};\n';
     for (var el in accessibleFields) {
-      buffer.write(serializeElement(el));
+      yield serializeElement(el);
     }
-    buffer.write('return data;\n}');
-
-    yield buffer.toString();
+    yield 'return data;\n}';
   }
 }

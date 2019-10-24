@@ -53,32 +53,25 @@ class SnapshotHelper with Helper {
     var type = el.type;
 
     if (annotation.ignore || isFunction(type)) {
-      return '\t// ignoring attribute \'${el.type.name} $destName\'\n';
+      return '\t// ignoring attribute \'${el.type.name} $destName\'';
     } else {
       return '$destName: ' +
           _serializeNestedElement(el, annotation, data) +
-          ',\n';
+          ',';
     }
   }
 
   Iterable<String> createFromSnapshot(
       List<FieldElement> accessibleFields, String className) sync* {
-    final buffer = StringBuffer();
-
     if (subdocument) {
-      buffer.write(
-          '${createSuffix(className)}FromSnapshot(Map<String, dynamic> data)=>$className(');
+      yield '${createSuffix(className)}FromSnapshot(Map<String, dynamic> data)=>$className(';
     } else {
-      buffer.write(
-          '$className ${createSuffix(className)}FromSnapshot(DocumentSnapshot snapshot)=>$className(');
-      buffer.write('selfRef: snapshot.reference,');
+      yield '$className ${createSuffix(className)}FromSnapshot(DocumentSnapshot snapshot)=>$className(';
+      yield 'selfRef: snapshot.reference,';
     }
     for (var el in accessibleFields) {
-      buffer.write(serializeElement(el));
+      yield serializeElement(el);
     }
-    buffer.write(');');
-    yield buffer.toString();
-
-    yield buffer.toString();
+    yield ');';
   }
 }
