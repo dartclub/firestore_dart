@@ -1,5 +1,4 @@
 import 'package:firestore_annotations/firestore_annotations.dart';
-import 'package:firestore_api/firestore_api.dart';
 part 'model.g.dart';
 
 @FirestoreDocument(hasSelfRef: false)
