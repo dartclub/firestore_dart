@@ -90,12 +90,12 @@ Object getLiteral(
   } else if (dartObject.type is FunctionType) {
     badType = 'Function';
   } else if (!reader.isLiteral) {
-    badType = dartObject.type.name;
+    badType = dartObject.type.getDisplayString();
   }
 
   if (badType != null) {
     badType = typeInformation.followedBy([badType]).join(' > ');
-    throw ('`defaultValue` is `$badType`, it must be a literal.'); // TODO throw
+    throw ('`defaultValue` is `$badType`, it must be a literal.');
   }
 
   final literal = reader.literalValue;

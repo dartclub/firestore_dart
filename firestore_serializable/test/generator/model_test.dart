@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 
-import 'package:firestore_api/firestore_api.dart';
+import 'package:firestore_serializable/firestore_serializable.dart';
 
 import 'model.dart';
 import 'package:test/test.dart';
-/*
+
 main() {
   group('Model()', () {
     Model model;

@@ -1,44 +1,49 @@
 import 'package:analyzer/dart/element/element.dart';
-import 'package:firestore_serializer/src/annotation_helper.dart';
-import 'package:firestore_serializer/src/helper.dart';
+import 'package:firestore_serializable/src/annotation_helper.dart';
+import 'package:firestore_serializable/src/helper.dart';
 
 class SnapshotHelper {
   SnapshotHelper();
 
   String _deserializeNestedElement(
       Element el, FieldAnnotationHelper annotation, String data) {
-    var type = getTypeOfElement(el);
-
-    if (isNestedElement(type)) {
+    var type = getElementType(el);
+    
+    if (type.isDartCoreList) {
       Element subEl = getNestedElement(type);
       String inner = _deserializeNestedElement(subEl, annotation, 'data');
-      if (inner.isEmpty) {
-        return '';
-      } else {
-        if (isListElement(type)) {
-          return 'List.castFrom($data).map((data) => $inner)';
-        } else if (isMapElement(type)) {
-          return '$data.map((key, data) => MapEntry(key, $inner))';
-        } else {
-          throw Exception(
-              'unsupported type ${type?.name} during nested deserialize');
-        }
-      }
+
+      return inner.isEmpty ? '' : 'List.castFrom($data).map((data) => $inner)';
+    } else if (type.isDartCoreSet) {
+      Element subEl = getNestedElement(type);
+      String inner = _deserializeNestedElement(subEl, annotation, 'data');
+
+      return inner.isEmpty ? '' : 'Set.castFrom($data).map((data) => $inner)';
+    } else if (type.isDartCoreMap) {
+      Element subEl = getNestedElement(type);
+      String inner = _deserializeNestedElement(subEl, annotation, 'data');
+
+      return inner.isEmpty
+          ? ''
+          : '$data.map((key, data) => MapEntry(key, $inner))';
     } else {
       return _deserializeSimpleElement(el, annotation, data);
     }
   }
 
   String _deserializeSimpleElement(
-      Element el, FieldAnnotationHelper annotation, String data) {
-    var type = getTypeOfElement(el);
+    Element el,
+    FieldAnnotationHelper annotation,
+    String data,
+  ) {
+    var type = getElementType(el);
     if (isFirestoreDataType(type)) {
-      return "/*${type.name} ${el.runtimeType} */$data";
+      return "$data";
     } else if (hasFirestoreDocumentAnnotation(type)) {
-      return '${createSuffix(type.name)}FromMap($data)';
+      return 'fromMap($data)';
     } else {
       throw Exception(
-          'unsupported type ${type?.name} ${el.runtimeType} during deserialize');
+          'unsupported type ${type?.getDisplayString()} ${el.runtimeType} during deserialize');
     }
   }
 
@@ -51,8 +56,8 @@ class SnapshotHelper {
 
     var type = el.type;
 
-    if (annotation.ignore || isFunction(type)) {
-      return '\t// ignoring attribute \'${el.type.name} $destName\'';
+    if (annotation.ignore || type.isDartCoreFunction) {
+      return '\t// ignoring attribute \'${el.type.getDisplayString()} $destName\'';
     } else {
       return '$destName: ' +
           _deserializeNestedElement(el, annotation, data) +
@@ -82,7 +87,7 @@ class SnapshotHelper {
       List<FieldElement> accessibleFields, String className) sync* {
     StringBuffer buffer = StringBuffer();
     buffer.writeln(
-        '${createSuffix(className)}FromMap(Map<String, dynamic> data)=> data == null ? null : $className(');
+        '$className ${createSuffix(className)}FromMap(Map<String, dynamic> data)=> data == null ? null : $className(');
     for (var el in accessibleFields) {
       buffer.writeln(deserializeElement(el, true));
     }

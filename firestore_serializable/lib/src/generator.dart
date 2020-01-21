@@ -1,11 +1,12 @@
 import 'package:build/build.dart';
-import 'package:firestore_serializer/src/annotation_helper.dart';
-import 'package:firestore_serializer/src/map_helper.dart';
-import 'package:firestore_serializer/src/snapshot_helper.dart';
+import 'package:firestore_serializable/src/annotation_helper.dart';
+import 'package:firestore_serializable/src/extension_helper.dart';
+import 'package:firestore_serializable/src/map_helper.dart';
+import 'package:firestore_serializable/src/snapshot_helper.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/src/builder/build_step.dart';
-import 'package:firestore_api/firestore_api.dart';
+import 'package:firestore_annotations/firestore_annotations.dart';
 
 class FirestoreDocumentGenerator
     extends GeneratorForAnnotation<FirestoreDocument> {
@@ -50,11 +51,14 @@ class _Generator {
     }
 
     SnapshotHelper snapshotHelper = SnapshotHelper();
+    
     yield* snapshotHelper
         .createFromSnapshot(accessibleFields, className, annotationHelper.hasSelfRef);
     yield* snapshotHelper
         .createFromMap(accessibleFields, className);
 
     yield* MapHelper().createToMap(accessibleFields, className);
+
+    yield* ExtensionHelper().createExtension(className);
   }
 }

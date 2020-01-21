@@ -1,16 +1,16 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
-import 'package:firestore_api/firestore_api.dart';
-import 'package:firestore_serializer/src/helper.dart';
-import 'package:firestore_serializer/src/utils.dart' as utils;
+import 'package:firestore_annotations/firestore_annotations.dart';
+import 'package:firestore_serializable/src/helper.dart';
+import 'package:firestore_serializable/src/utils.dart' as utils;
 
-class FieldAnnotationHelper  {
+class FieldAnnotationHelper {
   FirestoreAttribute attribute = FirestoreAttribute();
   bool hasFirestoreAttribute;
 
   FieldAnnotationHelper(FieldElement _el) {
     ElementAnnotation firestoreAttributeAnnotation = _el.metadata.firstWhere(
-        (ElementAnnotation el) => getName(el.element) == "FirestoreAttribute",
+        (ElementAnnotation el) => getName(el.element) == 'FirestoreAttribute',
         orElse: () => null);
 
     hasFirestoreAttribute = firestoreAttributeAnnotation != null;
@@ -41,7 +41,7 @@ class ClassAnnotationHelper {
 
   ClassAnnotationHelper(ClassElement _cl) {
     ElementAnnotation firestoreDocumentAnnotation = _cl.metadata.firstWhere(
-        (ElementAnnotation el) => getName(el.element) == "FirestoreDocument",
+        (ElementAnnotation el) => getName(el.element) == 'FirestoreDocument',
         orElse: () => null);
 
     if (firestoreDocumentAnnotation != null) {
