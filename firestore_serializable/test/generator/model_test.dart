@@ -1,7 +1,4 @@
-import 'dart:typed_data';
-
-import 'package:firestore_serializable/firestore_serializable.dart';
-
+import 'package:firestore_api/firestore_api.dart';
 import 'model.dart';
 import 'package:test/test.dart';
 
@@ -11,20 +8,9 @@ main() {
     Map<String, dynamic> map;
     setUp(() {
       model = Model(
-        ignoredAttribute: 42,
-        number: 1,
-        submodel: Submodel.fromMap({}),
-        intList: [1, 2, 3],
-        submodelList: <Submodel>[Submodel(), Submodel(), Submodel()],
-        submodelMap: <String, Submodel>{
-          "first": Submodel(),
-          "second": Submodel(),
-          "third": Submodel(),
-        },
-        dateTime: DateTime.now(),
-        blob: Blob(Uint8List.fromList([1, 2, 3])),
-        function: () {},
-        selfRef: null,
+        ignoredAttribute: 3,
+        number: 42,
+
       );
 
       map = model.toMap();
@@ -83,4 +69,3 @@ main() {
 
   group('Submodel()', () {});
 }
-*/

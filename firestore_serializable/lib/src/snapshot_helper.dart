@@ -8,7 +8,7 @@ class SnapshotHelper {
   String _deserializeNestedElement(
       Element el, FieldAnnotationHelper annotation, String data) {
     var type = getElementType(el);
-    
+
     if (type.isDartCoreList) {
       Element subEl = getNestedElement(type);
       String inner = _deserializeNestedElement(subEl, annotation, 'data');

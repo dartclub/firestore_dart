@@ -6,11 +6,7 @@ class ExtensionHelper {
     StringBuffer buffer = StringBuffer();
     buffer.writeln('extension on $className{');
     buffer.writeln(
-        '$className fromSnapshot(DocumentSnapshot snapshot) => ${createSuffix(className)}FromSnapshot(snapshot);');
-    buffer.writeln(
-        '$className fromMap(Map<String, dynamic> data) => ${createSuffix(className)}FromMap(data);');
-    buffer.writeln(
-        'Map<String, dynamic> toMap($className model) => ${createSuffix(className)}ToMap(model);');
+        'Map<String, dynamic> toMap() => ${createSuffix(className)}ToMap(this);');
     buffer.writeln('}');
     yield buffer.toString();
   }

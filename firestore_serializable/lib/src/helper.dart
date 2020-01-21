@@ -49,7 +49,7 @@ bool isFirestoreDataType(DartType type) {
 bool hasFirestoreDocumentAnnotation(DartType type) {
   if (type == null) return false;
   var meta = type.element.metadata;
-  if (meta.length > 0) {
+  if (meta.isNotEmpty) {
     for (var m in meta) {
       if (getName(m.element) == 'FirestoreDocument') {
         return true;
