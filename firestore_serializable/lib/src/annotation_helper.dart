@@ -18,8 +18,7 @@ class FieldAnnotationHelper {
       DartObject obj = firestoreAttributeAnnotation.computeConstantValue();
       attribute = FirestoreAttribute(
         ignore: obj.getField('ignore').toBoolValue(),
-        nullable:
-            obj.getField('nullable').toBoolValue(),
+        nullable: obj.getField('nullable').toBoolValue(),
         alias: obj.getField('alias').toStringValue(),
         defaultValue: utils.getLiteral(
           obj.getField('defaultValue'),
