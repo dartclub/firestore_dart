@@ -60,5 +60,5 @@ class Model {
 
   factory Model.fromMap(Map<String, dynamic> data) => _$modelFromMap(data);
 
-  /* toMap() method is generated as an extension method, but can also be accessed globally via _$modelToMap(Model model) */
+  Map<String, dynamic> toMap() => _$modelToMap(this);
 }

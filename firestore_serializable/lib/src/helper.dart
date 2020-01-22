@@ -28,7 +28,7 @@ String getName(Element el) {
   return name;
 }
 
-bool _isType(DartType t, String n) => t.getDisplayString() == n;
+bool isType(DartType t, String n) => t.getDisplayString() == n;
 
 bool isFirestoreDataType(DartType type) {
   return type != null &&
@@ -39,11 +39,11 @@ bool isFirestoreDataType(DartType type) {
           type.isDartCoreInt ||
           type.isDartCoreNum ||
           type.isDartCoreString ||
-          _isType(type, 'DateTime') ||
-          _isType(type, 'DocumentReference') ||
-          _isType(type, 'CollectionReference') ||
-          _isType(type, 'GeoPoint') ||
-          _isType(type, 'Blob'));
+          isType(type, 'DateTime') ||
+          isType(type, 'DocumentReference') ||
+          isType(type, 'CollectionReference') ||
+          isType(type, 'GeoPoint') ||
+          isType(type, 'Blob'));
 }
 
 bool hasFirestoreDocumentAnnotation(DartType type) {

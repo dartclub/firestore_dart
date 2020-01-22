@@ -19,7 +19,7 @@ class FieldAnnotationHelper {
       attribute = FirestoreAttribute(
         ignore: obj.getField('ignore').toBoolValue(),
         nullable:
-            obj.getField('nullable').toBoolValue(), // TODO implement nullable
+            obj.getField('nullable').toBoolValue(),
         alias: obj.getField('alias').toStringValue(),
         defaultValue: utils.getLiteral(
           obj.getField('defaultValue'),

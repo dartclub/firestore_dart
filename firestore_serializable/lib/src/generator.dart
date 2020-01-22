@@ -1,6 +1,5 @@
 import 'package:build/build.dart';
 import 'package:firestore_serializable/src/annotation_helper.dart';
-import 'package:firestore_serializable/src/extension_helper.dart';
 import 'package:firestore_serializable/src/map_helper.dart';
 import 'package:firestore_serializable/src/snapshot_helper.dart';
 import 'package:source_gen/source_gen.dart';
@@ -20,8 +19,7 @@ class FirestoreDocumentGenerator
           element: element);
     }
 
-    return _Generator(this, element as ClassElement, annotation)
-        .generate();
+    return _Generator(this, element as ClassElement, annotation).generate();
   }
 }
 
@@ -50,15 +48,12 @@ class _Generator {
       }
     }
 
-    SnapshotHelper snapshotHelper = SnapshotHelper();
-    
-    yield* snapshotHelper
-        .createFromSnapshot(accessibleFields, className, annotationHelper.hasSelfRef);
-    yield* snapshotHelper
-        .createFromMap(accessibleFields, className);
+    SnapshotHelper snapshotHelper = SnapshotHelper(className);
 
-    yield* MapHelper().createToMap(accessibleFields, className);
+    yield* snapshotHelper.createFromSnapshot(
+        accessibleFields, annotationHelper.hasSelfRef);
+    yield* snapshotHelper.createFromMap(accessibleFields, className);
 
-    yield* ExtensionHelper().createExtension(className);
+    yield* MapHelper(className).createToMap(accessibleFields);
   }
 }

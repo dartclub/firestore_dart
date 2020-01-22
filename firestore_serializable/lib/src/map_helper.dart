@@ -3,7 +3,8 @@ import 'package:firestore_serializable/src/annotation_helper.dart';
 import 'package:firestore_serializable/src/helper.dart';
 
 class MapHelper {
-  MapHelper();
+  final String className;
+  MapHelper(this.className);
 
   String _serializeNestedElement(Element el, FieldAnnotationHelper annotation) {
     var type = getElementType(el);
@@ -61,16 +62,23 @@ class MapHelper {
     }
   }
 
-  Iterable<String> createToMap(
-      List<FieldElement> accessibleFields, String className) sync* {
+  _createNullabilityCheck(FieldElement el) {
+    FieldAnnotationHelper annotation = FieldAnnotationHelper(el);
+    return annotation.nullable ? '' : 'assert(model.${el.name} != null);';
+  }
+
+  Iterable<String> createToMap(List<FieldElement> accessibleFields) sync* {
     StringBuffer buffer = StringBuffer();
     buffer.writeln(
-        'Map<String, dynamic> ${createSuffix(className)}ToMap($className model)');
-    buffer.writeln('=> <String, dynamic>{');
+        'Map<String, dynamic> ${createSuffix(className)}ToMap($className model){');
+    for (var el in accessibleFields) {
+      buffer.writeln(_createNullabilityCheck(el));
+    }
+    buffer.writeln('return <String, dynamic>{');
     for (var el in accessibleFields) {
       buffer.writeln(serializeElement(el));
     }
-    buffer.writeln('};');
+    buffer.writeln('};}');
     yield buffer.toString();
   }
 }
