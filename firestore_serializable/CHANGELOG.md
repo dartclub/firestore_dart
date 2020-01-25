@@ -1,3 +1,5 @@
+## 0.0.8
+
 ## 0.0.7
 
 - fix type checking for forms (see [https://github.com/dartclub/firestore_dart/issues/20])
