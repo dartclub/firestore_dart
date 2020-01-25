@@ -87,7 +87,8 @@ class FormHelper {
     buffer
       ..writeln('bool validate()=>formKey.currentState.validate();')
       ..writeln('bool validateManual() =>');
-    Iterator i = accessibleFields.iterator;
+    Iterator<FieldElement> i =
+        accessibleFields.where((el) => _supportedType(el)).iterator;
     bool moveNext = i.moveNext();
     while (moveNext) {
       var el = i.current;
