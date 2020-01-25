@@ -1,3 +1,7 @@
+## 0.0.4
+
+- flutter form support
+
 ## 0.0.3
 
 - unit tests, better generators, nullable is implemented

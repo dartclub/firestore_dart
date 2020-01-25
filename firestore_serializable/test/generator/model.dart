@@ -99,3 +99,13 @@ class Person {
   Map<String, dynamic> toJson() => _$PersonToJson(this);
 }
 */
+
+@FirestoreDocument(hasSelfRef: false, flutterFormHelper: true)
+class FormModel extends FormModelHelper{
+  String foo;
+  int bar;
+  double baz;
+  num bla;
+
+  FormModel({this.foo, this.bar, this.baz, this.bla});
+}

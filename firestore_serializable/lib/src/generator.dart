@@ -1,5 +1,6 @@
 import 'package:build/build.dart';
 import 'package:firestore_serializable/src/annotation_helper.dart';
+import 'package:firestore_serializable/src/form_helper.dart';
 import 'package:firestore_serializable/src/map_helper.dart';
 import 'package:firestore_serializable/src/snapshot_helper.dart';
 import 'package:source_gen/source_gen.dart';
@@ -37,6 +38,7 @@ class _Generator {
     final accessibleFields = <FieldElement>[];
 
     for (var el in element.fields) {
+      // TODO find more elegant solution
       if (!el.isPublic) {
         //throw 'Error';
       } else if (el.name == 'selfRef') {
@@ -55,5 +57,10 @@ class _Generator {
     yield* snapshotHelper.createFromMap(accessibleFields, className);
 
     yield* MapHelper(className).createToMap(accessibleFields);
+
+    if (annotationHelper.flutterFormHelper) {
+      yield* FormHelper(className)
+          .createHelperExtension(accessibleFields, className);
+    }
   }
 }

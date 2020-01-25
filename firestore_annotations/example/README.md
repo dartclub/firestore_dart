@@ -1,0 +1,1 @@
+see example at [https://pub.dev/packages/firestore_serializable#-example-tab-]
