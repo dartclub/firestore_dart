@@ -104,7 +104,7 @@ class FormHelper {
     buffer
       ..writeln('void reset()=>formKey.currentState.reset();')
       ..writeln('void resetManual(){');
-    for (var el in accessibleFields) {
+    for (var el in accessibleFields.where((el) => _supportedType(el))) {
       buffer.writeln(
           'if(_${el.displayName}EditingController != null){_${el.displayName}EditingController.text = initialState.${el.displayName};}');
     }
@@ -116,7 +116,7 @@ class FormHelper {
     buffer
       ..writeln('void save()=>formKey.currentState.save();')
       ..writeln('void saveManual(){');
-    for (var el in accessibleFields) {
+    for (var el in accessibleFields.where((el) => _supportedType(el))) {
       buffer.writeln(
           '${el.displayName} = (_${el.displayName}EditingController != null) ? _${el.displayName}EditingController.text : ${el.displayName};');
     }
