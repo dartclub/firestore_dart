@@ -38,7 +38,7 @@ class FormHelper {
 
   String _createOnEditingComplete(FieldElement el) {
     String controller = '_${el.displayName}EditingController';
-    return '${el.displayName}OnEditingComplete(value) => ${el.displayName} = $controller.text;';
+    return '${el.displayName}OnEditingComplete() => ${el.displayName} = $controller.text;';
   }
 
   String _createOnFieldSubmitted(FieldElement el) {
@@ -84,7 +84,18 @@ class FormHelper {
 
   _createFormValidate(List<FieldElement> accessibleFields, String className,
       StringBuffer buffer) {
-    buffer..writeln('bool validate()=>formKey.currentState.validate();');
+    buffer
+      ..writeln('bool validate()=>formKey.currentState.validate();')
+      ..writeln('bool validateManual() =>');
+    Iterator i = accessibleFields.iterator;
+    bool moveNext = i.moveNext();
+    while (moveNext) {
+      var el = i.current;
+      buffer.write(
+          '((_${el.displayName}EditingController != null) ? ${el.displayName}Validator(_${el.displayName}EditingController.text) == null : true )');
+      moveNext = i.moveNext();
+      buffer.writeln(moveNext ? '&&' : ';');
+    }
   }
 
   _createFormReset(List<FieldElement> accessibleFields, String className,
@@ -94,7 +105,7 @@ class FormHelper {
       ..writeln('void resetManual(){');
     for (var el in accessibleFields) {
       buffer.writeln(
-          '_${el.displayName}EditingController.text = initialState.${el.displayName};');
+          'if(_${el.displayName}EditingController != null){_${el.displayName}EditingController.text = initialState.${el.displayName};}');
     }
     buffer.writeln('}');
   }
@@ -106,7 +117,7 @@ class FormHelper {
       ..writeln('void saveManual(){');
     for (var el in accessibleFields) {
       buffer.writeln(
-          '${el.displayName} = _${el.displayName}EditingController.text;');
+          '${el.displayName} = (_${el.displayName}EditingController != null) ? _${el.displayName}EditingController.text : ${el.displayName};');
     }
     buffer.writeln('}');
   }
