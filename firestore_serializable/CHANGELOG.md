@@ -1,3 +1,7 @@
+## 0.0.5
+
+- more form support (see [https://github.com/dartclub/firestore_dart/issues/20])
+
 ## 0.0.4
 
 - flutter form support
