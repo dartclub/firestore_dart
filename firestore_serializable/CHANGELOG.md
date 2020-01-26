@@ -1,3 +1,7 @@
+## 0.0.9
+
+- support for Timestamp and DateTime, type fix with submodels
+
 ## 0.0.8
 
 ## 0.0.7

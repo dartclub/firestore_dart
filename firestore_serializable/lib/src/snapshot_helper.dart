@@ -56,12 +56,14 @@ class SnapshotHelper {
       } else if (type.isDartCoreNum) {
         return '($data is num || $data == null) ? $data : num.parse($data)';
       } else if (isType(type, 'DateTime')) {
-        return '($data is DateTime || $data == null) ? $data : DateTime.parse($data.toString())';
+        return '($data is DateTime || $data == null) ? $data : ($data is Timestamp ? $data.toDate() : DateTime.tryParse($data.toString()))';
+      } else if (isType(type, 'Timestamp')) {
+        return '($data is Timestamp || $data == null) ? $data : ($data is DateTime ? Timestamp.fromDate($data) : null)';
       } else {
         return data;
       }
     } else if (hasFirestoreDocumentAnnotation(type)) {
-      return '${type.getDisplayString()}.fromMap($data)';
+      return '${type.getDisplayString()}.fromMap(Map<String, dynamic>.from($data))';
     } else {
       throw Exception(
           'unsupported type ${type?.getDisplayString()} ${el.runtimeType} during deserialize');

@@ -6,34 +6,42 @@ class MapHelper {
   final String className;
   MapHelper(this.className);
 
-  String _serializeNestedElement(Element el, FieldAnnotationHelper annotation) {
+  String _serializeNestedElement(
+      Element el, FieldAnnotationHelper annotation, String data) {
     var type = getElementType(el);
 
     if (type.isDartCoreList) {
       Element subEl = getNestedElement(type);
-      String inner = _serializeNestedElement(subEl, annotation);
-      return inner.isEmpty ? '' : '.map((data)=>data$inner).toList()';
+      String inner = _serializeNestedElement(subEl, annotation, 'data');
+      return data + (inner.isEmpty ? '' : '.map((data)=>$inner).toList()');
     } else if (type.isDartCoreSet) {
       Element subEl = getNestedElement(type);
-      String inner = _serializeNestedElement(subEl, annotation);
-      return inner.isEmpty ? '' : '.map((data)=>data$inner).toSet()';
+      String inner = _serializeNestedElement(subEl, annotation, 'value');
+      return data + (inner.isEmpty ? '' : '.map((data)=>$inner).toSet()');
     } else if (type.isDartCoreMap) {
       Element subEl = getNestedElement(type);
-      String inner = _serializeNestedElement(subEl, annotation);
-      return inner.isEmpty
-          ? ''
-          : '.map((key, value) => MapEntry(key, value$inner))';
+      String inner = _serializeNestedElement(subEl, annotation, 'data');
+      return data +
+          (inner.isEmpty ? '' : '.map((key, data) => MapEntry(key, $inner))');
     } else {
-      return _serializeSimpleElement(el, annotation);
+      return _serializeSimpleElement(el, annotation, data);
     }
   }
 
-  String _serializeSimpleElement(Element el, FieldAnnotationHelper annotation) {
+  String _serializeSimpleElement(
+      Element el, FieldAnnotationHelper annotation, String data) {
     var type = getElementType(el);
+
     if (isFirestoreDataType(type)) {
-      return '';
+      if (isType(type, 'DateTime')) {
+        return 'Timestamp.fromMillisecondsSinceEpoch($data.millisecondsSinceEpoch)';
+      } else if (data == 'data') {
+        return '';
+      } else {
+        return data;
+      }
     } else if (hasFirestoreDocumentAnnotation(type)) {
-      return '.toMap()';
+      return '$data.toMap()';
     } else {
       throw Exception(
           'unsupported type ${type?.getDisplayString()} ${el.runtimeType} during serialize');
@@ -56,8 +64,8 @@ class MapHelper {
     if (annotation.ignore || type.isDartCoreFunction) {
       return '\t// ignoring attribute \'${type.getDisplayString()} $srcName\'';
     } else {
-      return '"$destName": model.$srcName' +
-          _serializeNestedElement(el, annotation) +
+      return '"$destName": ' +
+          _serializeNestedElement(el, annotation, 'model.$srcName') +
           '$defaultValue,';
     }
   }
