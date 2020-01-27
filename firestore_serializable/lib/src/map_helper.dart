@@ -34,7 +34,7 @@ class MapHelper {
 
     if (isFirestoreDataType(type)) {
       if (isType(type, 'DateTime')) {
-        return 'Timestamp.fromMillisecondsSinceEpoch($data.millisecondsSinceEpoch)';
+        return '$data != null ? Timestamp.fromDate($data) : null';
       } else if (data == 'data') {
         return '';
       } else {
