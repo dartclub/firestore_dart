@@ -47,6 +47,8 @@ class SnapshotHelper {
     if (isFirestoreDataType(type)) {
       if (data == 'data') {
         return '';
+      } else if (type.isDartCoreString) {
+        return '($data is String || $data == null) ? $data : $data.toString()';
       } else if (type.isDartCoreBool) {
         return '($data is bool || $data == null) ? $data : $data == "true"';
       } else if (type.isDartCoreDouble) {

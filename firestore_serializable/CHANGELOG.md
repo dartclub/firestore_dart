@@ -1,3 +1,7 @@
+## 0.0.11
+
+- add missing String type conversion in .fromSnapshot & .fromMap methods
+
 ## 0.0.10
 
 - bugfix for Timestamps
