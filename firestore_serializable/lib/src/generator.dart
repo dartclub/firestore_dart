@@ -1,11 +1,12 @@
 import 'package:build/build.dart';
-import 'package:firestore_serializer/src/annotation_helper.dart';
-import 'package:firestore_serializer/src/map_helper.dart';
-import 'package:firestore_serializer/src/snapshot_helper.dart';
+import 'package:firestore_serializable/src/annotation_helper.dart';
+import 'package:firestore_serializable/src/form_helper.dart';
+import 'package:firestore_serializable/src/map_helper.dart';
+import 'package:firestore_serializable/src/snapshot_helper.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/src/builder/build_step.dart';
-import 'package:firestore_api/firestore_api.dart';
+import 'package:firestore_annotations/firestore_annotations.dart';
 
 class FirestoreDocumentGenerator
     extends GeneratorForAnnotation<FirestoreDocument> {
@@ -19,8 +20,7 @@ class FirestoreDocumentGenerator
           element: element);
     }
 
-    return _Generator(this, element as ClassElement, annotation)
-        .generate();
+    return _Generator(this, element as ClassElement, annotation).generate();
   }
 }
 
@@ -38,6 +38,8 @@ class _Generator {
     final accessibleFields = <FieldElement>[];
 
     for (var el in element.fields) {
+      // TODO find more elegant solution
+      // TODO ignore getter, if no setter with the same name is available
       if (!el.isPublic) {
         //throw 'Error';
       } else if (el.name == 'selfRef') {
@@ -49,12 +51,17 @@ class _Generator {
       }
     }
 
-    SnapshotHelper snapshotHelper = SnapshotHelper();
-    yield* snapshotHelper
-        .createFromSnapshot(accessibleFields, className, annotationHelper.hasSelfRef);
-    yield* snapshotHelper
-        .createFromMap(accessibleFields, className);
+    SnapshotHelper snapshotHelper = SnapshotHelper(className);
 
-    yield* MapHelper().createToMap(accessibleFields, className);
+    yield* snapshotHelper.createFromSnapshot(
+        accessibleFields, annotationHelper.hasSelfRef);
+    yield* snapshotHelper.createFromMap(accessibleFields, className);
+
+    yield* MapHelper(className).createToMap(accessibleFields);
+
+    if (annotationHelper.flutterFormHelper) {
+      yield* FormHelper(className)
+          .createHelperExtension(accessibleFields, className);
+    }
   }
 }
