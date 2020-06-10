@@ -1,4 +1,5 @@
 /* Firestore Serializable Annotations */
+library firestore_annotations;
 
 class FirestoreDocument {
   final bool hasSelfRef;
