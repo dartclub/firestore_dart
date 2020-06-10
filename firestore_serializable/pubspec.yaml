@@ -1,6 +1,6 @@
 name: firestore_serializable
 description: 'Generate fromMap(), fromSnapshot() and toMap() methods for your Firestore data models using this library. Based on source_gen, similar to json_serializable'
-version: 0.0.12
+version: 0.0.14
 homepage: https://www.github.com/dartclub/firestore_dart
 environment:
   sdk: '>=2.6.0 <3.0.0'

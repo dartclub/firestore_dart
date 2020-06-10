@@ -48,19 +48,19 @@ class SnapshotHelper {
       if (data == 'data') {
         return '';
       } else if (type.isDartCoreString) {
-        return '($data is String || $data == null) ? $data : $data.toString()';
+        return '$data is String ? $data : $data.toString()';
       } else if (type.isDartCoreBool) {
-        return '($data is bool || $data == null) ? $data : $data == "true"';
+        return '$data is bool ? $data : $data == "true"';
       } else if (type.isDartCoreDouble) {
-        return '($data is double || $data == null) ? $data : double.parse($data)';
+        return '$data is double  ? $data : double.parse($data)';
       } else if (type.isDartCoreInt) {
-        return '($data is int || $data == null) ? $data : int.parse($data)';
+        return '$data is int ? $data : int.parse($data)';
       } else if (type.isDartCoreNum) {
-        return '($data is num || $data == null) ? $data : num.parse($data)';
+        return '$data is num ? $data : num.parse($data)';
       } else if (isType(type, 'DateTime')) {
-        return '($data is DateTime || $data == null) ? $data : ($data is Timestamp ? $data.toDate() : DateTime.tryParse($data.toString()))';
+        return '$data is DateTime ? $data : ($data is Timestamp ? $data.toDate() : DateTime.tryParse($data.toString()))';
       } else if (isType(type, 'Timestamp')) {
-        return '($data is Timestamp || $data == null) ? $data : ($data is DateTime ? Timestamp.fromDate($data) : null)';
+        return '$data is Timestamp ? $data : ($data is DateTime ? Timestamp.fromDate($data) : null)';
       } else {
         return data;
       }
@@ -84,9 +84,9 @@ class SnapshotHelper {
     if (annotation.ignore || type.isDartCoreFunction) {
       return '\t// ignoring attribute \'${el.type.getDisplayString()} $destName\'';
     } else {
-      return '$destName: ' +
+      return '$destName: $data != null ?' +
           _deserializeNestedElement(el, annotation, data) +
-          ',';
+          ': null,';
     }
   }
 

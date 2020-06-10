@@ -54,9 +54,9 @@ class MapHelper {
     String srcName = el.name;
     String destName = annotation.alias ?? el.name;
 
-    String defaultValue = '';
+    String defaultValue = ': null';
     if (annotation.defaultValue != null) {
-      defaultValue = ' ?? ${annotation.defaultValue}';
+      defaultValue = ' : ${annotation.defaultValue}';
     }
 
     var type = el.type;
@@ -64,7 +64,7 @@ class MapHelper {
     if (annotation.ignore || type.isDartCoreFunction) {
       return '\t// ignoring attribute \'${type.getDisplayString()} $srcName\'';
     } else {
-      return '"$destName": ' +
+      return '"$destName": model.$srcName != null ? ' +
           _serializeNestedElement(el, annotation, 'model.$srcName') +
           '$defaultValue,';
     }
