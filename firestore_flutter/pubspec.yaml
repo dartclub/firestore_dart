@@ -8,7 +8,7 @@ environment:
 
 
 dependencies:
-  cloud_firestore: ^0.12.9
+  cloud_firestore: ^0.13.3
   firestore_api:
     git:
       url: https://github.com/dartclub/firestore_dart
