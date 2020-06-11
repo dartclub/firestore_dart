@@ -1,3 +1,11 @@
+## 0.0.15
+
+- revert flutter form support introduced in v. 0.0.4
+
+## 0.0.12 - 0.0.14
+
+- bug fixes
+
 ## 0.0.11
 
 - add missing String type conversion in .fromSnapshot & .fromMap methods

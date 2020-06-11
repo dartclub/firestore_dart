@@ -88,26 +88,3 @@ class Model {
   factory Model.fromMap(Map<String, dynamic> data) => _$modelFromMap(data);
   Map<String, dynamic> toMap() => _$modelToMap(this);
 }
-/*
-@JsonSerializable(nullable: false)
-class Person {
-  final String firstName;
-  final String lastName;
-  final DateTime dateOfBirth;
-  Person({this.firstName, this.lastName, this.dateOfBirth});
-  factory Person.fromJson(Map<String, dynamic> json) => _$PersonFromJson(json);
-  Map<String, dynamic> toJson() => _$PersonToJson(this);
-}
-*/
-
-@FirestoreDocument(hasSelfRef: false, flutterFormHelper: true)
-class FormModel extends FormModelHelper {
-  String foo;
-  int bar;
-  double baz;
-  num bla;
-
-  FormModel({this.foo, this.bar, this.baz, this.bla}) {
-    super.initialState = this;
-  }
-}
