@@ -33,12 +33,10 @@ class MapHelper {
     var type = getElementType(el);
 
     if (isFirestoreDataType(type)) {
-      if (isType(type, 'DateTime')) {
-        return '$data != null ? Timestamp.fromDate($data) : null';
-      } else if (data == 'data') {
-        return '';
-      } else {
+      if (data != 'data') {
         return data;
+      } else {
+        return '';
       }
     } else if (hasFirestoreDocumentAnnotation(type)) {
       return '$data.toMap()';
@@ -54,9 +52,9 @@ class MapHelper {
     String srcName = el.name;
     String destName = annotation.alias ?? el.name;
 
-    String defaultValue = ': null';
+    String defaultValue = ',';
     if (annotation.defaultValue != null) {
-      defaultValue = ' : ${annotation.defaultValue}';
+      defaultValue = '?? ${annotation.defaultValue},';
     }
 
     var type = el.type;
@@ -64,9 +62,9 @@ class MapHelper {
     if (annotation.ignore || type.isDartCoreFunction) {
       return '\t// ignoring attribute \'${type.getDisplayString()} $srcName\'';
     } else {
-      return '"$destName": model.$srcName != null ? ' +
+      return '"$destName": ' +
           _serializeNestedElement(el, annotation, 'model.$srcName') +
-          '$defaultValue,';
+          defaultValue;
     }
   }
 

@@ -58,9 +58,7 @@ class SnapshotHelper {
       } else if (type.isDartCoreNum) {
         return '$data is num ? $data : num.parse($data)';
       } else if (isType(type, 'DateTime')) {
-        return '$data is DateTime ? $data : ($data is Timestamp ? $data.toDate() : DateTime.tryParse($data.toString()))';
-      } else if (isType(type, 'Timestamp')) {
-        return '$data is Timestamp ? $data : ($data is DateTime ? Timestamp.fromDate($data) : null)';
+        return '$data is DateTime ? $data : DateTime.tryParse($data.toString())';
       } else {
         return data;
       }
@@ -79,14 +77,18 @@ class SnapshotHelper {
     String destName = el.name;
     String data = fromMap ? 'data["$srcName"]' : 'snapshot.data["$srcName"]';
 
+    String defaultValue = ',';
+    if (annotation.defaultValue != null) {
+      defaultValue = '?? ${annotation.defaultValue},';
+    }
     var type = el.type;
 
     if (annotation.ignore || type.isDartCoreFunction) {
       return '\t// ignoring attribute \'${el.type.getDisplayString()} $destName\'';
     } else {
-      return '$destName: $data != null ?' +
+      return '$destName: ' +
           _deserializeNestedElement(el, annotation, data) +
-          ': null,';
+          defaultValue;
     }
   }
 
