@@ -1,3 +1,8 @@
+## 0.0.17
+
+- better handling of null values during (de)serialization
+- fixed bug #21 generator now ignores getters in `fromSnapshot`/`fromMap` and setters in `toMap`
+
 ## 0.0.15
 
 - revert flutter form support introduced in v. 0.0.4
