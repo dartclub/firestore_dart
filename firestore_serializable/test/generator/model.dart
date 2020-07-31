@@ -22,6 +22,8 @@ class Model {
 
   Function function;
 
+  get foo => 'foo';
+
   int _privateAttribute;
 
   @FirestoreAttribute(alias: 'otherName')

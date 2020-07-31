@@ -13,16 +13,16 @@ class MapHelper {
     if (type.isDartCoreList) {
       Element subEl = getNestedElement(type);
       String inner = _serializeNestedElement(subEl, annotation, 'data');
-      return data + (inner.isEmpty ? '' : '.map((data)=>$inner).toList()');
+      return data + (inner.isEmpty ? '' : '?.map((data)=>$inner).toList()');
     } else if (type.isDartCoreSet) {
       Element subEl = getNestedElement(type);
       String inner = _serializeNestedElement(subEl, annotation, 'value');
-      return data + (inner.isEmpty ? '' : '.map((data)=>$inner).toSet()');
+      return data + (inner.isEmpty ? '' : '?.map((data)=>$inner).toSet()');
     } else if (type.isDartCoreMap) {
       Element subEl = getNestedElement(type);
       String inner = _serializeNestedElement(subEl, annotation, 'data');
       return data +
-          (inner.isEmpty ? '' : '.map((key, data) => MapEntry(key, $inner))');
+          (inner.isEmpty ? '' : '?.map((key, data) => MapEntry(key, $inner))');
     } else {
       return _serializeSimpleElement(el, annotation, data);
     }
@@ -39,7 +39,7 @@ class MapHelper {
         return '';
       }
     } else if (hasFirestoreDocumentAnnotation(type)) {
-      return '$data.toMap()';
+      return '$data?.toMap()';
     } else {
       throw Exception(
           'unsupported type ${type?.getDisplayString()} ${el.runtimeType} during serialize');
@@ -59,7 +59,7 @@ class MapHelper {
 
     var type = el.type;
 
-    if (annotation.ignore || type.isDartCoreFunction) {
+    if (annotation.ignore || type.isDartCoreFunction || el.getter == null) {
       return '\t// ignoring attribute \'${type.getDisplayString()} $srcName\'';
     } else {
       return '"$destName": ' +

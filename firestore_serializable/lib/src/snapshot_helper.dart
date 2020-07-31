@@ -5,7 +5,6 @@ import 'package:firestore_serializable/src/helper.dart';
 class SnapshotHelper {
   final String className;
   SnapshotHelper(this.className);
-
   String _deserializeNestedElement(
       Element el, FieldAnnotationHelper annotation, String data) {
     var type = getElementType(el);
@@ -17,7 +16,7 @@ class SnapshotHelper {
 
       return inner.isEmpty
           ? (data != 'data' ? data : inner)
-          : 'List.castFrom($data).map<$subTypeLabel>((data) => $inner).toList()';
+          : 'List.castFrom($data ?? []).map<$subTypeLabel>((data) => $inner).toList()';
     } else if (type.isDartCoreSet) {
       Element subEl = getNestedElement(type);
       String inner = _deserializeNestedElement(subEl, annotation, 'data');
@@ -25,14 +24,14 @@ class SnapshotHelper {
 
       return inner.isEmpty
           ? (data != 'data' ? data : inner)
-          : 'Set.castFrom($data).map<$subTypeLabel>((data) => $inner).toSet()';
+          : 'Set.castFrom($data ?? {}).map<$subTypeLabel>((data) => $inner).toSet()';
     } else if (type.isDartCoreMap) {
       Element subEl = getNestedElement(type);
       String inner = _deserializeNestedElement(subEl, annotation, 'data');
 
       return inner.isEmpty
           ? (data != 'data' ? data : inner)
-          : '$data.map((key, data) => MapEntry(key, $inner))';
+          : '$data?.map((key, data) => MapEntry(key, $inner))';
     } else {
       return _deserializeSimpleElement(el, annotation, data);
     }
@@ -45,25 +44,26 @@ class SnapshotHelper {
   ) {
     var type = getElementType(el);
     if (isFirestoreDataType(type)) {
+      var parse = annotation.nullable ? 'tryParse' : 'parse';
       if (data == 'data') {
         return '';
       } else if (type.isDartCoreString) {
-        return '$data is String ? $data : $data.toString()';
+        return '$data is String ? $data : $data?.toString()';
       } else if (type.isDartCoreBool) {
         return '$data is bool ? $data : $data == "true"';
       } else if (type.isDartCoreDouble) {
-        return '$data is double  ? $data : double.parse($data)';
+        return '$data is double  ? $data : double.$parse($data)';
       } else if (type.isDartCoreInt) {
-        return '$data is int ? $data : int.parse($data)';
+        return '$data is int ? $data : int.$parse($data)';
       } else if (type.isDartCoreNum) {
-        return '$data is num ? $data : num.parse($data)';
+        return '$data is num ? $data : num.$parse($data)';
       } else if (isType(type, 'DateTime')) {
-        return '$data is DateTime ? $data : DateTime.tryParse($data.toString())';
+        return '$data is DateTime ? $data : DateTime.$parse($data?.toString())';
       } else {
         return data;
       }
     } else if (hasFirestoreDocumentAnnotation(type)) {
-      return '${type.getDisplayString()}.fromMap(Map<String, dynamic>.from($data))';
+      return '${type.getDisplayString()}.fromMap(Map<String, dynamic>.from($data ?? {}))';
     } else {
       throw Exception(
           'unsupported type ${type?.getDisplayString()} ${el.runtimeType} during deserialize');
@@ -83,7 +83,7 @@ class SnapshotHelper {
     }
     var type = el.type;
 
-    if (annotation.ignore || type.isDartCoreFunction) {
+    if (annotation.ignore || type.isDartCoreFunction || el.setter == null) {
       return '\t// ignoring attribute \'${el.type.getDisplayString()} $destName\'';
     } else {
       return '$destName: ' +
