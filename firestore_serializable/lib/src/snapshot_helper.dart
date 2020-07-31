@@ -52,13 +52,13 @@ class SnapshotHelper {
       } else if (type.isDartCoreBool) {
         return '$data is bool ? $data : $data == "true"';
       } else if (type.isDartCoreDouble) {
-        return '$data is double  ? $data : double.$parse($data)';
+        return '$data is double  ? $data : double.$parse($data.toString())';
       } else if (type.isDartCoreInt) {
-        return '$data is int ? $data : int.$parse($data)';
+        return '$data is int ? $data : int.$parse($data.toString())';
       } else if (type.isDartCoreNum) {
-        return '$data is num ? $data : num.$parse($data)';
+        return '$data is num ? $data : num.$parse($data.toString())';
       } else if (isType(type, 'DateTime')) {
-        return '$data is DateTime ? $data : DateTime.$parse($data?.toString())';
+        return '$data is DateTime ? $data : DateTime.$parse($data.toString())';
       } else {
         return data;
       }
