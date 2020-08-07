@@ -16,7 +16,7 @@ class SnapshotHelper {
 
       return inner.isEmpty
           ? (data != 'data' ? data : inner)
-          : 'List.castFrom($data ?? []).map<$subTypeLabel>((data) => $inner).toList()';
+          : 'List.castFrom($data ?? []).map<$subTypeLabel>((data) => $inner)?.toList()';
     } else if (type.isDartCoreSet) {
       Element subEl = getNestedElement(type);
       String inner = _deserializeNestedElement(subEl, annotation, 'data');
