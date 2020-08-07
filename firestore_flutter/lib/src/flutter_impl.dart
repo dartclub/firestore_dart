@@ -403,9 +403,14 @@ class _Transaction extends Transaction {
 }
 
 class FirestoreImpl extends Firestore {
-  final fs.Firestore _firestore = fs.Firestore.instance;
+  final fs.Firestore _firestore;
 
-  static Firestore instance = FirestoreImpl();
+  FirestoreImpl._(this._firestore);
+
+  static Firestore instance = FirestoreImpl._(fs.Firestore.instance);
+
+  factory FirestoreImpl.fromInstance(fs.Firestore instance) =>
+      FirestoreImpl._(instance ?? fs.Firestore.instance);
 
   @override
   WriteBatch batch() {
