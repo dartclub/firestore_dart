@@ -43,6 +43,7 @@ bool isFirestoreDataType(DartType type) {
           isType(type, 'DocumentReference') ||
           isType(type, 'CollectionReference') ||
           isType(type, 'GeoPoint') ||
+          isType(type, 'Timestamp') ||
           isType(type, 'Blob'));
 }
 
@@ -57,6 +58,7 @@ bool isAllowedGeneric(DartType type) {
           isType(type, 'DocumentReference') ||
           isType(type, 'CollectionReference') ||
           isType(type, 'GeoPoint') ||
+          isType(type, 'Timestamp') ||
           isType(type, 'Blob'));
 }
 

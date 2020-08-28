@@ -37,7 +37,6 @@ class _Generator {
     final accessibleFields = <FieldElement>[];
 
     for (var el in element.fields) {
-      // TODO find more elegant solution
       if (el.isPublic && el.name != 'selfRef') {
         accessibleFields.add(el);
       }

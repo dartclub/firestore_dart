@@ -54,6 +54,7 @@ class SnapshotHelper {
     var type = getElementType(el);
     if (isFirestoreDataType(type)) {
       var parse = annotation.nullable ? 'tryParse' : 'parse';
+
       if (data == 'data') {
         return '';
       } else if (type.isDartCoreString) {
@@ -68,6 +69,8 @@ class SnapshotHelper {
         return '$data is num ? $data : num.$parse($data.toString())';
       } else if (isType(type, 'DateTime')) {
         return '$data is DateTime ? $data : DateTime.$parse($data.toString())';
+      } else if (isType(type, 'Timestamp')) {
+        return '$data is Timestamp ? $data : $data is int ? Timestamp.fromMillisecondsSinceEpoch($data): Timestamp.fromDate($data is DateTime ? $data: DateTime.$parse($data.toString()))';
       } else {
         return data;
       }

@@ -2,6 +2,12 @@ import 'package:firestore_annotations/firestore_annotations.dart';
 import 'package:firestore_api/firestore_api.dart';
 part 'model.g.dart';
 
+class Timestamp {
+  final _stamp;
+  Timestamp.fromMillisecondsSinceEpoch(this._stamp);
+  Timestamp.fromDate(this._stamp);
+}
+
 @FirestoreDocument(hasSelfRef: false)
 class Submodel {
   @FirestoreAttribute()
@@ -39,6 +45,8 @@ class Model {
       defaultValue: 'default Value "Let\'s see if the escaping works"')
   String stringDefaultValue;
 
+  Timestamp timestamp;
+
   List<int> intList;
 
   List<List<int>> nestedIntList;
@@ -70,6 +78,7 @@ class Model {
   dynamic attribute;
 
   Model({
+    this.timestamp,
     this.selfRef,
     this.ignoredAttribute,
     this.number,
