@@ -37,6 +37,7 @@ class FieldAnnotationHelper {
 class ClassAnnotationHelper {
   FirestoreDocument firestoreDocument;
   bool get hasSelfRef => firestoreDocument.hasSelfRef;
+  bool get nullable => firestoreDocument.nullable;
 
   ClassAnnotationHelper(ClassElement _cl) {
     ElementAnnotation firestoreDocumentAnnotation = _cl.metadata.firstWhere(
@@ -48,6 +49,7 @@ class ClassAnnotationHelper {
 
       firestoreDocument = FirestoreDocument(
         hasSelfRef: obj.getField("hasSelfRef").toBoolValue(),
+        nullable: obj.getField("nullable").toBoolValue(),
       );
     }
   }

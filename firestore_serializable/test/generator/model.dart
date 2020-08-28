@@ -12,7 +12,7 @@ class Submodel {
   Map<String, dynamic> toMap() => _$submodelToMap(this);
 }
 
-@FirestoreDocument()
+@FirestoreDocument(nullable: true)
 class Model {
   DocumentReference selfRef;
 

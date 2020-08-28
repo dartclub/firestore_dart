@@ -1,6 +1,6 @@
 name: firestore_annotations
 description: Annotations for the firestore serializable package, which generates fromMap(), fromSnapshot() and toMap() methods for your Firestore data models. Based on source_gen, similar to json_serializable (jsoon_annotations)
-version: 0.0.2
+version: 0.0.3
 homepage: https://www.github.com/dartclub/firestore_dart
 
 environment:

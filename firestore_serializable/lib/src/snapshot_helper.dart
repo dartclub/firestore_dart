@@ -101,7 +101,16 @@ class SnapshotHelper {
     }
   }
 
-  _createNullabilityCheck(FieldElement el, bool fromMap) {
+  _createNullabilityCheck(bool nullable, bool fromMap) {
+    String data = fromMap ? 'data' : 'snapshot';
+    if (nullable) {
+      return 'if($data == null) return null;';
+    } else {
+      return 'assert($data != null);';
+    }
+  }
+
+  _createFieldNullabilityCheck(FieldElement el, bool fromMap) {
     FieldAnnotationHelper annotation = FieldAnnotationHelper(el);
     String srcName = annotation.alias ?? el.name;
     String data = fromMap ? 'data["$srcName"]' : 'snapshot.data["$srcName"]';
@@ -109,41 +118,58 @@ class SnapshotHelper {
     return annotation.nullable ? '' : 'assert($data != null);';
   }
 
-  Iterable<String> createFromSnapshot(
-      List<FieldElement> accessibleFields, bool hasSelfRef) sync* {
+  Iterable<String> createFromSnapshot(List<FieldElement> accessibleFields,
+      bool hasSelfRef, bool nullable) sync* {
     StringBuffer buffer = StringBuffer();
-    buffer.writeln(
-        '$className ${createSuffix(className)}FromSnapshot(DocumentSnapshot snapshot){');
+
+    buffer
+      ..writeln(
+          '$className ${createSuffix(className)}FromSnapshot(DocumentSnapshot snapshot){')
+      ..writeln(_createNullabilityCheck(nullable, false));
+
     for (var el in accessibleFields) {
-      buffer.writeln(_createNullabilityCheck(el, false));
+      buffer.writeln(_createFieldNullabilityCheck(el, false));
     }
+
     buffer.writeln('return $className(');
+
     if (hasSelfRef) {
       buffer.writeln('selfRef: snapshot.reference');
       if (accessibleFields.isNotEmpty) {
         buffer.write(",");
       }
     }
+
     for (var el in accessibleFields) {
       buffer.writeln(deserializeElement(el, false));
     }
+
     buffer.writeln(');}');
+
     yield buffer.toString();
   }
 
-  Iterable<String> createFromMap(
-      List<FieldElement> accessibleFields, String className) sync* {
+  Iterable<String> createFromMap(List<FieldElement> accessibleFields,
+      String className, bool nullable) sync* {
     StringBuffer buffer = StringBuffer();
-    buffer.writeln(
-        '$className ${createSuffix(className)}FromMap(Map<String, dynamic> data){');
+
+    buffer
+      ..writeln(
+          '$className ${createSuffix(className)}FromMap(Map<String, dynamic> data){')
+      ..writeln(_createNullabilityCheck(nullable, true));
+
     for (var el in accessibleFields) {
-      buffer.writeln(_createNullabilityCheck(el, true));
+      buffer.writeln(_createFieldNullabilityCheck(el, true));
     }
+
     buffer.writeln('return $className(');
+
     for (var el in accessibleFields) {
       buffer.writeln(deserializeElement(el, true));
     }
+
     buffer.writeln(');}');
+
     yield buffer.toString();
   }
 }

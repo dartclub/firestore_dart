@@ -52,9 +52,10 @@ class _Generator {
 
     SnapshotHelper snapshotHelper = SnapshotHelper(className);
 
-    yield* snapshotHelper.createFromSnapshot(
-        accessibleFields, annotationHelper.hasSelfRef);
-    yield* snapshotHelper.createFromMap(accessibleFields, className);
+    yield* snapshotHelper.createFromSnapshot(accessibleFields,
+        annotationHelper.hasSelfRef, annotationHelper.nullable);
+    yield* snapshotHelper.createFromMap(
+        accessibleFields, className, annotationHelper.nullable);
 
     yield* MapHelper(className).createToMap(accessibleFields);
   }

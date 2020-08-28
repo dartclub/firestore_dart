@@ -1,3 +1,8 @@
+## 0.0.18
+
+- `nullable` field for `FirestoreDocument`
+- fix deserialization of List and Set with generic types (e.g. List<String>)
+
 ## 0.0.17
 
 - better handling of null values during (de)serialization

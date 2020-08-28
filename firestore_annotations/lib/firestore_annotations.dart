@@ -3,7 +3,10 @@ library firestore_annotations;
 
 class FirestoreDocument {
   final bool hasSelfRef;
+  final bool nullable;
+
   const FirestoreDocument({
+    this.nullable = false,
     this.hasSelfRef = true,
   });
 }
