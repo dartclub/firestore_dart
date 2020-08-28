@@ -38,14 +38,7 @@ class _Generator {
 
     for (var el in element.fields) {
       // TODO find more elegant solution
-      // TODO ignore getter, if no setter with the same name is available
-      if (!el.isPublic) {
-        //throw 'Error';
-      } else if (el.name == 'selfRef') {
-        //throw 'Error';
-      } else if (el.getter == null) {
-        //throw 'Error';
-      } else {
+      if (el.isPublic && el.name != 'selfRef') {
         accessibleFields.add(el);
       }
     }

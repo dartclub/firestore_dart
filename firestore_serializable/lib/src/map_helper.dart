@@ -16,8 +16,8 @@ class MapHelper {
       return data + (inner.isEmpty ? '' : '?.map((data)=>$inner)?.toList()');
     } else if (type.isDartCoreSet) {
       Element subEl = getNestedElement(type);
-      String inner = _serializeNestedElement(subEl, annotation, 'value');
-      return data + (inner.isEmpty ? '' : '?.map((data)=>$inner).toSet()');
+      String inner = _serializeNestedElement(subEl, annotation, 'data');
+      return data + (inner.isEmpty ? '' : '?.map((data) => $inner).toList()');
     } else if (type.isDartCoreMap) {
       Element subEl = getNestedElement(type);
       String inner = _serializeNestedElement(subEl, annotation, 'data');
