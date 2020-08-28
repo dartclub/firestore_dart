@@ -1,0 +1,17 @@
+name: firestore_node
+description: firestore interop for node
+version: 1.0.0
+homepage: https://www.github.com/dartclub/firestore_dart
+
+environment:
+  sdk: '>=2.1.0 <3.0.0'
+
+dependencies:
+  firestore_api:
+    git:
+      url: https://github.com/dartclub/firestore_dart
+      path: firestore_api
+  firebase_admin_interop: ^2.1.0
+
+dev_dependencies:
+  test: ^1.0.0
