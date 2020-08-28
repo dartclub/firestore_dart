@@ -1,3 +1,7 @@
+## 0.0.19
+
+- reintroduce Timestamp support
+
 ## 0.0.18
 
 - `nullable` field for `FirestoreDocument`
