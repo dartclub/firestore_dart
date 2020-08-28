@@ -1,4 +1,5 @@
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:firestore_serializable/src/annotation_helper.dart';
 import 'package:firestore_serializable/src/helper.dart';
 
@@ -12,19 +13,27 @@ class SnapshotHelper {
     if (type.isDartCoreList) {
       Element subEl = getNestedElement(type);
       String inner = _deserializeNestedElement(subEl, annotation, 'data');
-      String subTypeLabel = getElementType(subEl).getDisplayString();
+      DartType subType = getElementType(subEl);
+      String subTypeLabel = subType.getDisplayString();
 
-      return inner.isEmpty
-          ? (data != 'data' ? data : inner)
-          : 'List.castFrom($data ?? []).map<$subTypeLabel>((data) => $inner)?.toList()';
+      if (inner.isEmpty) {
+        var name = (data != 'data' ? data : inner);
+        return isAllowedGeneric(subType) ? '$name.cast<$subTypeLabel>()' : name;
+      } else {
+        return 'List.castFrom($data ?? []).map<$subTypeLabel>((data) => $inner)?.toList()';
+      }
     } else if (type.isDartCoreSet) {
       Element subEl = getNestedElement(type);
       String inner = _deserializeNestedElement(subEl, annotation, 'data');
-      String subTypeLabel = getElementType(subEl).getDisplayString();
+      DartType subType = getElementType(subEl);
+      String subTypeLabel = subType.getDisplayString();
 
-      return inner.isEmpty
-          ? (data != 'data' ? data : inner)
-          : 'Set.castFrom($data ?? {}).map<$subTypeLabel>((data) => $inner).toSet()';
+      if (inner.isEmpty) {
+        var name = (data != 'data' ? data : inner);
+        return isAllowedGeneric(subType) ? '$name.cast<$subTypeLabel>()' : name;
+      } else {
+        return 'Set.castFrom($data ?? {}).map<$subTypeLabel>((data) => $inner).toSet()';
+      }
     } else if (type.isDartCoreMap) {
       Element subEl = getNestedElement(type);
       String inner = _deserializeNestedElement(subEl, annotation, 'data');

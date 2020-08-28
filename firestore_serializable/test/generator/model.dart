@@ -47,7 +47,13 @@ class Model {
 
   List<dynamic> dynamicList;
 
+  List<String> stringList;
+
   List<Submodel> submodelList;
+
+  Set<String> stringSet;
+
+  Set<Submodel> submodelSet;
 
   List<List<Submodel>> nestedSubmodelList;
 
@@ -74,6 +80,7 @@ class Model {
     this.intList,
     this.nestedIntList,
     this.dynamicList,
+    this.stringList,
     this.submodelList,
     this.nestedSubmodelList,
     this.map,
@@ -83,6 +90,8 @@ class Model {
     this.blob,
     this.function,
     this.attribute,
+    this.stringSet,
+    this.submodelSet,
   });
 
   factory Model.fromSnapshot(DocumentSnapshot snapshot) =>
