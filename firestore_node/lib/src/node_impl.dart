@@ -68,10 +68,10 @@ class _BlobImpl extends Blob {
   _BlobImpl(Uint8List l) : super(l);
 }
 
-class _DocumentSnapshotImpl extends DocumentSnapshot {
+class DocumentSnapshotImpl extends DocumentSnapshot {
   final fs.DocumentSnapshot _documentSnapshot;
 
-  _DocumentSnapshotImpl(this._documentSnapshot);
+  DocumentSnapshotImpl(this._documentSnapshot);
 
   @override
   Map<String, dynamic> get data {
@@ -107,7 +107,7 @@ class _DocumentChangeImpl extends DocumentChange {
 
   @override
   DocumentSnapshot get document =>
-      _DocumentSnapshotImpl(_documentChange.document);
+      DocumentSnapshotImpl(_documentChange.document);
 
   @override
   int get newIndex => _documentChange.newIndex;
@@ -141,7 +141,7 @@ class _QuerySnapshotImpl extends QuerySnapshot {
 
   @override
   List<DocumentSnapshot> get documents => _querySnapshot.documents
-      .map((snapshot) => _DocumentSnapshotImpl(snapshot))
+      .map((snapshot) => DocumentSnapshotImpl(snapshot))
       .toList();
 
   @override
@@ -150,7 +150,7 @@ class _QuerySnapshotImpl extends QuerySnapshot {
   @override
   void forEach(onEach) {
     _querySnapshot.documents.forEach((snapshot) {
-      onEach(_DocumentSnapshotImpl(snapshot));
+      onEach(DocumentSnapshotImpl(snapshot));
     });
   }
 
@@ -179,7 +179,7 @@ class _DocumentReferenceImpl extends DocumentReference {
 
   @override
   Future<DocumentSnapshot> get document async {
-    return _DocumentSnapshotImpl(await _documentReference.get());
+    return DocumentSnapshotImpl(await _documentReference.get());
   }
 
   @override
@@ -198,7 +198,7 @@ class _DocumentReferenceImpl extends DocumentReference {
   @override
   Stream<DocumentSnapshot> get snapshots {
     return _documentReference.snapshots
-        .map((snapshot) => _DocumentSnapshotImpl(snapshot));
+        .map((snapshot) => DocumentSnapshotImpl(snapshot));
   }
 
   @override
@@ -288,7 +288,7 @@ class _QueryImpl extends Query {
     return _QueryImpl(
       _query.endAt(
           snapshot:
-              (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot),
+              (documentSnapshot as DocumentSnapshotImpl)._documentSnapshot),
     );
   }
 
@@ -297,7 +297,7 @@ class _QueryImpl extends Query {
     return _QueryImpl(
       _query.endBefore(
           snapshot:
-              (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot),
+              (documentSnapshot as DocumentSnapshotImpl)._documentSnapshot),
     );
   }
 
@@ -306,7 +306,7 @@ class _QueryImpl extends Query {
     return _QueryImpl(
       _query.startAfter(
           snapshot:
-              (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot),
+              (documentSnapshot as DocumentSnapshotImpl)._documentSnapshot),
     );
   }
 
@@ -315,7 +315,7 @@ class _QueryImpl extends Query {
     return _QueryImpl(
       _query.startAt(
           snapshot:
-              (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot),
+              (documentSnapshot as DocumentSnapshotImpl)._documentSnapshot),
     );
   }
 
@@ -391,7 +391,7 @@ class _Transaction extends Transaction {
   Future<DocumentSnapshot> get(DocumentReference documentReference) async {
     fs.DocumentSnapshot snapshot = await _transaction
         .get((documentReference as _DocumentReferenceImpl)._documentReference);
-    return _DocumentSnapshotImpl(snapshot);
+    return DocumentSnapshotImpl(snapshot);
   }
 
   @override
