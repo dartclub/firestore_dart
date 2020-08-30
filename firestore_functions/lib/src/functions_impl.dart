@@ -5,14 +5,7 @@ import 'package:firebase_functions_interop/src/bindings.dart' as js
 import 'package:node_interop/node_interop.dart';
 
 import 'package:firestore_api/firestore_api.dart';
-import 'package:firestore_node/src/node_impl.dart' show DocumentSnapshotImpl;
-
-export 'package:firebase_functions_interop/src/bindings.dart'
-    show CloudFunction, HttpsFunction, EventAuthInfo, RuntimeOptions;
-export 'package:firebase_functions_interop/src/express.dart';
-
-export 'package:firebase_admin_interop/firebase_admin_interop.dart'
-    hide Firestore;
+import 'package:firestore_node/firestore_node.dart';
 
 final FirebaseFunctions functions = FirebaseFunctions(f.functions);
 

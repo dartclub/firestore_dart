@@ -3,6 +3,7 @@ library firestore_functions;
 export 'src/functions_impl.dart' show functions, FirebaseFunctions;
 
 export 'package:firestore_api/firestore_api.dart';
+export 'package:firestore_node/firestore_node.dart';
 
 export 'package:firebase_functions_interop/firebase_functions_interop.dart'
     show
