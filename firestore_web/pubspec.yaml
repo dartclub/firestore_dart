@@ -1,5 +1,5 @@
 name: firestore_web
-description:
+description: firestore interop for web
 version: 1.0.0
 homepage: https://www.github.com/dartclub/firestore_dart
 
@@ -17,4 +17,5 @@ dependencies:
     git: https://github.com/FirebaseExtended/firebase-dart
 
 dev_dependencies:
+  dartclub_lint: 0.2.1
   test: ^1.0.0
