@@ -72,11 +72,11 @@ class _DocumentSnapshotImpl extends DocumentSnapshot {
 
   @override
   Map<String, dynamic> get data {
-    return _dataWrapper.wrapMap(_documentSnapshot.data);
+    return _dataWrapper.wrapMap(_documentSnapshot.data());
   }
 
   @override
-  String get documentID => _documentSnapshot.documentID;
+  String get documentID => _documentSnapshot.id;
 
   @override
   bool get exists => _documentSnapshot.exists;
@@ -101,8 +101,7 @@ class _DocumentChangeImpl extends DocumentChange {
   _DocumentChangeImpl(this._documentChange);
 
   @override
-  DocumentSnapshot get document =>
-      _DocumentSnapshotImpl(_documentChange.document);
+  DocumentSnapshot get document => _DocumentSnapshotImpl(_documentChange.doc);
 
   @override
   int get newIndex => _documentChange.newIndex;
@@ -130,21 +129,21 @@ class _QuerySnapshotImpl extends QuerySnapshot {
   _QuerySnapshotImpl(this._querySnapshot);
 
   @override
-  List<DocumentChange> get documentChanges => _querySnapshot.documentChanges
+  List<DocumentChange> get documentChanges => _querySnapshot.docChanges
       .map((docChange) => _DocumentChangeImpl(docChange))
       .toList();
 
   @override
-  List<DocumentSnapshot> get documents => _querySnapshot.documents
+  List<DocumentSnapshot> get documents => _querySnapshot.docs
       .map((snapshot) => _DocumentSnapshotImpl(snapshot))
       .toList();
 
   @override
-  bool get empty => _querySnapshot.documents.isEmpty;
+  bool get empty => _querySnapshot.docs.isEmpty;
 
   @override
   void forEach(onEach) {
-    _querySnapshot.documents.forEach((snapshot) {
+    _querySnapshot.docs.forEach((snapshot) {
       onEach(_DocumentSnapshotImpl(snapshot));
     });
   }
@@ -177,15 +176,15 @@ class _DocumentReferenceImpl extends DocumentReference {
   }
 
   @override
-  String get documentID => _documentReference.documentID;
+  String get documentID => _documentReference.id;
 
   @override
   String get path => _documentReference.path;
 
   @override
   Future<void> setData(Map<String, dynamic> data, {bool merge = false}) {
-    return _documentReference.setData(_dataWrapper.unwrapMap(data),
-        merge: merge);
+    return _documentReference.set(
+        _dataWrapper.unwrapMap(data), fs.SetOptions(merge: true));
   }
 
   @override
@@ -197,12 +196,12 @@ class _DocumentReferenceImpl extends DocumentReference {
 
   @override
   Future<void> update(Map<String, dynamic> data) {
-    return _documentReference.updateData(_dataWrapper.unwrapMap(data));
+    return _documentReference.update(_dataWrapper.unwrapMap(data));
   }
 
   @override
   CollectionReference get parent {
-    return _CollectionReferenceImpl(_documentReference.parent());
+    return _CollectionReferenceImpl(_documentReference.parent);
   }
 }
 
@@ -221,12 +220,12 @@ class _CollectionReferenceImpl extends _QueryImpl
 
   @override
   DocumentReference document([String path]) {
-    return _DocumentReferenceImpl(_collectionReference.document(path));
+    return _DocumentReferenceImpl(_collectionReference.doc(path));
   }
 
   @override
   DocumentReference get parent {
-    return _DocumentReferenceImpl(_collectionReference.parent());
+    return _DocumentReferenceImpl(_collectionReference.parent);
   }
 }
 
@@ -251,7 +250,7 @@ class _QueryImpl extends Query {
   Future<QuerySnapshot> getDocuments(
       {Source source = Source.serverAndCache}) async {
     return _QuerySnapshotImpl(
-        await _query.getDocuments(source: _remapSource(source)));
+        await _query.get(fs.GetOptions(source: _remapSource(source))));
   }
 
   @override
@@ -354,15 +353,13 @@ class _WriteBatch extends WriteBatch {
   @override
   void setData(DocumentReference document, Map<String, dynamic> data,
       {bool merge = false}) {
-    _writeBatch.setData((document as _DocumentReferenceImpl)._documentReference,
-        _dataWrapper.unwrapMap(data),
-        merge: merge);
+    _writeBatch.set((document as _DocumentReferenceImpl)._documentReference,
+        _dataWrapper.unwrapMap(data), fs.SetOptions(merge: merge));
   }
 
   @override
   void updateData(DocumentReference document, Map<String, dynamic> data) {
-    _writeBatch.updateData(
-        (document as _DocumentReferenceImpl)._documentReference,
+    _writeBatch.update((document as _DocumentReferenceImpl)._documentReference,
         _dataWrapper.unwrapMap(data));
   }
 }
@@ -403,14 +400,14 @@ class _Transaction extends Transaction {
 }
 
 class FirestoreImpl extends Firestore {
-  final fs.Firestore _firestore;
+  final fs.FirebaseFirestore _firestore;
 
   FirestoreImpl._(this._firestore);
 
-  static Firestore instance = FirestoreImpl._(fs.Firestore.instance);
+  static Firestore instance = FirestoreImpl._(fs.FirebaseFirestore.instance);
 
-  factory FirestoreImpl.fromInstance(fs.Firestore instance) =>
-      FirestoreImpl._(instance ?? fs.Firestore.instance);
+  factory FirestoreImpl.fromInstance(fs.FirebaseFirestore instance) =>
+      FirestoreImpl._(instance ?? fs.FirebaseFirestore.instance);
 
   @override
   WriteBatch batch() {
@@ -424,7 +421,7 @@ class FirestoreImpl extends Firestore {
 
   @override
   DocumentReference document(String path) {
-    return _DocumentReferenceImpl(_firestore.document(path));
+    return _DocumentReferenceImpl(_firestore.doc(path));
   }
 
   @override
