@@ -1,7 +1,7 @@
 import 'package:build/build.dart';
 import 'package:firestore_serializable/src/annotation_helper.dart';
-import 'package:firestore_serializable/src/map_helper.dart';
-import 'package:firestore_serializable/src/snapshot_helper.dart';
+import 'package:firestore_serializable/src/serialize_helper.dart';
+import 'package:firestore_serializable/src/deserialize_helper.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/src/builder/build_step.dart';

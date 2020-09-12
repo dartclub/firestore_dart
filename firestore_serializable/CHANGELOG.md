@@ -1,3 +1,7 @@
+## 0.0.20
+
+- ignore attributes that are null in serialisation
+
 ## 0.0.19
 
 - reintroduce Timestamp support
@@ -5,7 +9,7 @@
 ## 0.0.18
 
 - `nullable` field for `FirestoreDocument`
-- fix deserialization of List and Set with generic types (e.g. List<String>)
+- fix deserialization of List and Set with generic types (e.g. `List<String>`)
 
 ## 0.0.17
 

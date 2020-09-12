@@ -62,7 +62,7 @@ class MapHelper {
     if (annotation.ignore || type.isDartCoreFunction || el.getter == null) {
       return '\t// ignoring attribute \'${type.getDisplayString()} $srcName\'';
     } else {
-      return '"$destName": ' +
+      return 'if(model.$srcName != null) "$destName": ' +
           _serializeNestedElement(el, annotation, 'model.$srcName') +
           defaultValue;
     }

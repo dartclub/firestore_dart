@@ -1,6 +1,3 @@
-import 'dart:typed_data';
-
-import 'package:firestore_api/firestore_api.dart';
 import 'model.dart';
 import 'package:test/test.dart';
 
@@ -9,7 +6,7 @@ main() {
     Model model;
     Map<String, dynamic> map;
     setUp(() {
-      model = Model(selfRef: );
+      model = Model(selfRef: null);
 
       map = model.toMap();
     });
