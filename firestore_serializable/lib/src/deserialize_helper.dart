@@ -3,9 +3,9 @@ import 'package:analyzer/dart/element/type.dart';
 import 'package:firestore_serializable/src/annotation_helper.dart';
 import 'package:firestore_serializable/src/helper.dart';
 
-class SnapshotHelper {
+class DeserializeHelper {
   final String className;
-  SnapshotHelper(this.className);
+  DeserializeHelper(this.className);
   String _deserializeNestedElement(
       Element el, FieldAnnotationHelper annotation, String data) {
     var type = getElementType(el);

@@ -42,13 +42,13 @@ class _Generator {
       }
     }
 
-    SnapshotHelper snapshotHelper = SnapshotHelper(className);
+    DeserializeHelper deserializeHelper = DeserializeHelper(className);
 
-    yield* snapshotHelper.createFromSnapshot(accessibleFields,
+    yield* deserializeHelper.createFromSnapshot(accessibleFields,
         annotationHelper.hasSelfRef, annotationHelper.nullable);
-    yield* snapshotHelper.createFromMap(
+    yield* deserializeHelper.createFromMap(
         accessibleFields, className, annotationHelper.nullable);
 
-    yield* MapHelper(className).createToMap(accessibleFields);
+    yield* SerializeHelper(className).createToMap(accessibleFields);
   }
 }
