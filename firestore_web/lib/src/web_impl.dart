@@ -423,13 +423,12 @@ class FirestoreImpl extends Firestore {
   }
 
   @override
-  Future<Map<String, dynamic>> runTransaction(transactionHandler,
-      {Duration timeout = const Duration(seconds: 5)}) async {
-    Map<String, dynamic> result = Map.castFrom(
-        await _firestore.runTransaction((fs.Transaction transaction) {
+  Future<T> runTransaction<T>(
+      Future<T> Function(Transaction transaction) transactionHandler,
+      {Duration timeout = const Duration(seconds: 5)}) {
+    return _firestore.runTransaction((fs.Transaction transaction) {
       return transactionHandler(_Transaction(transaction));
-    }));
-    return result;
+    }) as Future<T>;
   }
 
   @override
