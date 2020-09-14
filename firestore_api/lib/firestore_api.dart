@@ -256,7 +256,9 @@ class FieldValue {
   static FieldValue increment(num value) =>
       FieldValue._(FieldValueType.increment, value);
   static FieldValue arrayRemove(List<dynamic> value) =>
-      FieldValue._(FieldValueType.increment, value);
+      FieldValue._(FieldValueType.arrayRemove, value);
+  static FieldValue arrayUnion(List<dynamic> value) =>
+      FieldValue._(FieldValueType.arrayUnion, value);
 }
 
 // oriented at the cloud_firestore package's Blob implementation
