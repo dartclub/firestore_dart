@@ -14,7 +14,7 @@ class DeserializeHelper {
       Element subEl = getNestedElement(type);
       String inner = _deserializeNestedElement(subEl, annotation, 'data');
       DartType subType = getElementType(subEl);
-      String subTypeLabel = subType.getDisplayString();
+      String subTypeLabel = subType.element.name;
 
       if (inner.isEmpty) {
         var name = (data != 'data' ? data : inner);
@@ -26,7 +26,7 @@ class DeserializeHelper {
       Element subEl = getNestedElement(type);
       String inner = _deserializeNestedElement(subEl, annotation, 'data');
       DartType subType = getElementType(subEl);
-      String subTypeLabel = subType.getDisplayString();
+      String subTypeLabel = subType.element.name;
 
       if (inner.isEmpty) {
         var name = (data != 'data' ? data : inner);
@@ -75,10 +75,10 @@ class DeserializeHelper {
         return data;
       }
     } else if (hasFirestoreDocumentAnnotation(type)) {
-      return '${type.getDisplayString()}.fromMap(Map<String, dynamic>.from($data ?? {}))';
+      return '${type.element.name}.fromMap(Map<String, dynamic>.from($data ?? {}))';
     } else {
       throw Exception(
-          'unsupported type ${type?.getDisplayString()} ${el.runtimeType} during deserialize');
+          'unsupported type ${type?.getDisplayString(withNullability: true)} ${el.runtimeType} during deserialize');
     }
   }
 
@@ -96,7 +96,7 @@ class DeserializeHelper {
     var type = el.type;
 
     if (annotation.ignore || type.isDartCoreFunction || el.setter == null) {
-      return '\t// ignoring attribute \'${el.type.getDisplayString()} $destName\'';
+      return '\t// ignoring attribute \'${el.type.element.name} $destName\'';
     } else {
       return '$destName: ' +
           _deserializeNestedElement(el, annotation, data) +

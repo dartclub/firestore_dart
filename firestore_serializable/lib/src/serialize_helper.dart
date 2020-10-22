@@ -42,7 +42,7 @@ class SerializeHelper {
       return '$data?.toMap()';
     } else {
       throw Exception(
-          'unsupported type ${type?.getDisplayString()} ${el.runtimeType} during serialize');
+          'unsupported type ${type?.getDisplayString(withNullability: true)} ${el.runtimeType} during serialize');
     }
   }
 
@@ -60,7 +60,7 @@ class SerializeHelper {
     var type = el.type;
 
     if (annotation.ignore || type.isDartCoreFunction || el.getter == null) {
-      return '\t// ignoring attribute \'${type.getDisplayString()} $srcName\'';
+      return '\t// ignoring attribute \'${type.element.name} $srcName\'';
     } else {
       return 'if(model.$srcName != null) "$destName": ' +
           _serializeNestedElement(el, annotation, 'model.$srcName') +
