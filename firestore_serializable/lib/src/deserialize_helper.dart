@@ -87,7 +87,9 @@ class DeserializeHelper {
 
     String srcName = annotation.alias ?? el.name;
     String destName = el.name;
-    String data = fromMap ? 'data["$srcName"]' : 'snapshot.data()["$srcName"]';
+
+    String base = fromMap ? "data" : "snapshot.data()";
+    String data = fromMap ? '$base["$srcName"]' : '$base["$srcName"]';
 
     String defaultValue = ',';
     if (annotation.defaultValue != null) {
@@ -98,7 +100,10 @@ class DeserializeHelper {
     if (annotation.ignore || type.isDartCoreFunction || el.setter == null) {
       return '\t// ignoring attribute \'${el.type.element.name} $destName\'';
     } else {
+      String nullCheck =
+          '($base == null || !$base.containsKey("$srcName")) ? null : ';
       return '$destName: ' +
+          (annotation.nullable ? nullCheck : "") +
           _deserializeNestedElement(el, annotation, data) +
           defaultValue;
     }
