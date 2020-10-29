@@ -335,6 +335,7 @@ mixin BatchHelper {
   Firestore _batchFirestore;
   WriteBatch _batch;
   int _batchCount = 0;
+  bool logging = false;
 
   startBatch(Firestore firestore) {
     _batchFirestore = firestore;
@@ -350,18 +351,27 @@ mixin BatchHelper {
   addDeleteToBatch(DocumentReference ref,
       {int commitAfter = MAX_ENTRIES_PER_BATCH}) async {
     _batch.delete(ref);
+    if (logging) {
+      print("batch delete: $ref");
+    }
     await _processBatch(commitAfter);
   }
 
   addUpdateToBatch(DocumentReference ref, Map<String, dynamic> data,
       {int commitAfter = MAX_ENTRIES_PER_BATCH}) async {
     _batch.updateData(ref, data);
+    if (logging) {
+      print("batch update: $data");
+    }
     await _processBatch(commitAfter);
   }
 
   addSetDataToBatch(DocumentReference ref, Map<String, dynamic> data,
       {int commitAfter = MAX_ENTRIES_PER_BATCH, bool merge = false}) async {
     _batch.setData(ref, data, merge: merge);
+    if (logging) {
+      print("batch set: $data");
+    }
     await _processBatch(commitAfter);
   }
 
