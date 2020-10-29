@@ -361,7 +361,7 @@ mixin BatchHelper {
       {int commitAfter = MAX_ENTRIES_PER_BATCH}) async {
     _batch.updateData(ref, data);
     if (logging) {
-      print("batch update: $data");
+      print("batch update: $ref => $data");
     }
     await _processBatch(commitAfter);
   }
@@ -370,7 +370,7 @@ mixin BatchHelper {
       {int commitAfter = MAX_ENTRIES_PER_BATCH, bool merge = false}) async {
     _batch.setData(ref, data, merge: merge);
     if (logging) {
-      print("batch set: $data");
+      print("batch set: $ref => $data");
     }
     await _processBatch(commitAfter);
   }
