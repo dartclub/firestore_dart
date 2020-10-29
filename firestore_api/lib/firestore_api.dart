@@ -5,8 +5,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 typedef OnEachDocumentSnapshot = Function(DocumentSnapshot snapshot);
-typedef TransactionHandler = Future<Map<String, dynamic>> Function(
-    Transaction transaction);
 
 abstract class DataWrapper {
   dynamic wrapValue(dynamic value);
@@ -107,8 +105,8 @@ abstract class Firestore {
 
   DocumentReference document(String path);
   WriteBatch batch();
-  Future<Map<String, dynamic>> runTransaction(
-      TransactionHandler transactionHandler,
+  Future<T> runTransaction<T>(
+      Future<T> transactionHandler(Transaction transaction),
       {Duration timeout = const Duration(seconds: 5)});
 }
 
@@ -258,7 +256,9 @@ class FieldValue {
   static FieldValue increment(num value) =>
       FieldValue._(FieldValueType.increment, value);
   static FieldValue arrayRemove(List<dynamic> value) =>
-      FieldValue._(FieldValueType.increment, value);
+      FieldValue._(FieldValueType.arrayRemove, value);
+  static FieldValue arrayUnion(List<dynamic> value) =>
+      FieldValue._(FieldValueType.arrayUnion, value);
 }
 
 // oriented at the cloud_firestore package's Blob implementation

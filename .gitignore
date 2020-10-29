@@ -30,3 +30,4 @@ firestore-debug.log
 node_modules
 .flutter-plugins-dependencies
 .flutter-plugins
+firestore_mock

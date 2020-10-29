@@ -1,6 +1,6 @@
-# 0.0.2
+# 0.0.3
 
-Support for flutter forms;
+FirestoreDocument has a new nullable attribute 
 
 # 0.0.1 
 

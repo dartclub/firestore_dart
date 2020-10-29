@@ -40,10 +40,25 @@ bool isFirestoreDataType(DartType type) {
           type.isDartCoreNum ||
           type.isDartCoreString ||
           isType(type, 'DateTime') ||
-          isType(type, 'Timestamp') ||
           isType(type, 'DocumentReference') ||
           isType(type, 'CollectionReference') ||
           isType(type, 'GeoPoint') ||
+          isType(type, 'Timestamp') ||
+          isType(type, 'Blob'));
+}
+
+bool isAllowedGeneric(DartType type) {
+  return type != null &&
+      (type.isDartCoreBool ||
+          type.isDartCoreDouble ||
+          type.isDartCoreInt ||
+          type.isDartCoreNum ||
+          type.isDartCoreString ||
+          isType(type, 'DateTime') ||
+          isType(type, 'DocumentReference') ||
+          isType(type, 'CollectionReference') ||
+          isType(type, 'GeoPoint') ||
+          isType(type, 'Timestamp') ||
           isType(type, 'Blob'));
 }
 

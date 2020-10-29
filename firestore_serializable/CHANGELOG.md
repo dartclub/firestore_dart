@@ -1,3 +1,29 @@
+## 0.0.20
+
+- ignore attributes that are null in serialisation
+
+## 0.0.19
+
+- reintroduce Timestamp support
+
+## 0.0.18
+
+- `nullable` field for `FirestoreDocument`
+- fix deserialization of List and Set with generic types (e.g. `List<String>`)
+
+## 0.0.17
+
+- better handling of null values during (de)serialization
+- fixed bug #21 generator now ignores getters in `fromSnapshot`/`fromMap` and setters in `toMap`
+
+## 0.0.15
+
+- revert flutter form support introduced in v. 0.0.4
+
+## 0.0.12 - 0.0.14
+
+- bug fixes
+
 ## 0.0.11
 
 - add missing String type conversion in .fromSnapshot & .fromMap methods

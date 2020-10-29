@@ -1,11 +1,11 @@
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:firestore_serializable/src/annotation_helper.dart';
 import 'package:firestore_serializable/src/helper.dart';
 
-class SnapshotHelper {
+class DeserializeHelper {
   final String className;
-  SnapshotHelper(this.className);
-
+  DeserializeHelper(this.className);
   String _deserializeNestedElement(
       Element el, FieldAnnotationHelper annotation, String data) {
     var type = getElementType(el);
@@ -13,26 +13,34 @@ class SnapshotHelper {
     if (type.isDartCoreList) {
       Element subEl = getNestedElement(type);
       String inner = _deserializeNestedElement(subEl, annotation, 'data');
-      String subTypeLabel = getElementType(subEl).getDisplayString();
+      DartType subType = getElementType(subEl);
+      String subTypeLabel = subType.getDisplayString();
 
-      return inner.isEmpty
-          ? (data != 'data' ? data : inner)
-          : 'List.castFrom($data).map<$subTypeLabel>((data) => $inner).toList()';
+      if (inner.isEmpty) {
+        var name = (data != 'data' ? data : inner);
+        return isAllowedGeneric(subType) ? '$name.cast<$subTypeLabel>()' : name;
+      } else {
+        return 'List.castFrom($data ?? []).map<$subTypeLabel>((data) => $inner)?.toList()';
+      }
     } else if (type.isDartCoreSet) {
       Element subEl = getNestedElement(type);
       String inner = _deserializeNestedElement(subEl, annotation, 'data');
-      String subTypeLabel = getElementType(subEl).getDisplayString();
+      DartType subType = getElementType(subEl);
+      String subTypeLabel = subType.getDisplayString();
 
-      return inner.isEmpty
-          ? (data != 'data' ? data : inner)
-          : 'Set.castFrom($data).map<$subTypeLabel>((data) => $inner).toSet()';
+      if (inner.isEmpty) {
+        var name = (data != 'data' ? data : inner);
+        return isAllowedGeneric(subType) ? '$name.cast<$subTypeLabel>()' : name;
+      } else {
+        return 'Set.castFrom($data ?? {}).map<$subTypeLabel>((data) => $inner).toSet()';
+      }
     } else if (type.isDartCoreMap) {
       Element subEl = getNestedElement(type);
       String inner = _deserializeNestedElement(subEl, annotation, 'data');
 
       return inner.isEmpty
           ? (data != 'data' ? data : inner)
-          : '$data.map((key, data) => MapEntry(key, $inner))';
+          : '$data?.map((key, data) => MapEntry(key, $inner))';
     } else {
       return _deserializeSimpleElement(el, annotation, data);
     }
@@ -45,27 +53,29 @@ class SnapshotHelper {
   ) {
     var type = getElementType(el);
     if (isFirestoreDataType(type)) {
+      var parse = annotation.nullable ? 'tryParse' : 'parse';
+
       if (data == 'data') {
         return '';
       } else if (type.isDartCoreString) {
-        return '($data is String || $data == null) ? $data : $data.toString()';
+        return '$data is String ? $data : $data?.toString()';
       } else if (type.isDartCoreBool) {
-        return '($data is bool || $data == null) ? $data : $data == "true"';
+        return '$data is bool ? $data : $data == "true"';
       } else if (type.isDartCoreDouble) {
-        return '($data is double || $data == null) ? $data : double.parse($data)';
+        return '$data is double  ? $data : double.$parse($data.toString())';
       } else if (type.isDartCoreInt) {
-        return '($data is int || $data == null) ? $data : int.parse($data)';
+        return '$data is int ? $data : int.$parse($data.toString())';
       } else if (type.isDartCoreNum) {
-        return '($data is num || $data == null) ? $data : num.parse($data)';
+        return '$data is num ? $data : num.$parse($data.toString())';
       } else if (isType(type, 'DateTime')) {
-        return '($data is DateTime || $data == null) ? $data : ($data is Timestamp ? $data.toDate() : DateTime.tryParse($data.toString()))';
+        return '$data is DateTime ? $data : DateTime.$parse($data.toString())';
       } else if (isType(type, 'Timestamp')) {
-        return '($data is Timestamp || $data == null) ? $data : ($data is DateTime ? Timestamp.fromDate($data) : null)';
+        return '$data is Timestamp ? $data : $data is int ? Timestamp.fromMillisecondsSinceEpoch($data): Timestamp.fromDate($data is DateTime ? $data: DateTime.$parse($data.toString()))';
       } else {
         return data;
       }
     } else if (hasFirestoreDocumentAnnotation(type)) {
-      return '${type.getDisplayString()}.fromMap(Map<String, dynamic>.from($data))';
+      return '${type.getDisplayString()}.fromMap(Map<String, dynamic>.from($data ?? {}))';
     } else {
       throw Exception(
           'unsupported type ${type?.getDisplayString()} ${el.runtimeType} during deserialize');
@@ -79,18 +89,31 @@ class SnapshotHelper {
     String destName = el.name;
     String data = fromMap ? 'data["$srcName"]' : 'snapshot.data["$srcName"]';
 
+    String defaultValue = ',';
+    if (annotation.defaultValue != null) {
+      defaultValue = '?? ${annotation.defaultValue},';
+    }
     var type = el.type;
 
-    if (annotation.ignore || type.isDartCoreFunction) {
+    if (annotation.ignore || type.isDartCoreFunction || el.setter == null) {
       return '\t// ignoring attribute \'${el.type.getDisplayString()} $destName\'';
     } else {
       return '$destName: ' +
           _deserializeNestedElement(el, annotation, data) +
-          ',';
+          defaultValue;
     }
   }
 
-  _createNullabilityCheck(FieldElement el, bool fromMap) {
+  _createNullabilityCheck(bool nullable, bool fromMap) {
+    String data = fromMap ? 'data' : 'snapshot';
+    if (nullable) {
+      return 'if($data == null) return null;';
+    } else {
+      return 'assert($data != null);';
+    }
+  }
+
+  _createFieldNullabilityCheck(FieldElement el, bool fromMap) {
     FieldAnnotationHelper annotation = FieldAnnotationHelper(el);
     String srcName = annotation.alias ?? el.name;
     String data = fromMap ? 'data["$srcName"]' : 'snapshot.data["$srcName"]';
@@ -98,41 +121,58 @@ class SnapshotHelper {
     return annotation.nullable ? '' : 'assert($data != null);';
   }
 
-  Iterable<String> createFromSnapshot(
-      List<FieldElement> accessibleFields, bool hasSelfRef) sync* {
+  Iterable<String> createFromSnapshot(List<FieldElement> accessibleFields,
+      bool hasSelfRef, bool nullable) sync* {
     StringBuffer buffer = StringBuffer();
-    buffer.writeln(
-        '$className ${createSuffix(className)}FromSnapshot(DocumentSnapshot snapshot){');
+
+    buffer
+      ..writeln(
+          '$className ${createSuffix(className)}FromSnapshot(DocumentSnapshot snapshot){')
+      ..writeln(_createNullabilityCheck(nullable, false));
+
     for (var el in accessibleFields) {
-      buffer.writeln(_createNullabilityCheck(el, false));
+      buffer.writeln(_createFieldNullabilityCheck(el, false));
     }
+
     buffer.writeln('return $className(');
+
     if (hasSelfRef) {
       buffer.writeln('selfRef: snapshot.reference');
       if (accessibleFields.isNotEmpty) {
         buffer.write(",");
       }
     }
+
     for (var el in accessibleFields) {
       buffer.writeln(deserializeElement(el, false));
     }
+
     buffer.writeln(');}');
+
     yield buffer.toString();
   }
 
-  Iterable<String> createFromMap(
-      List<FieldElement> accessibleFields, String className) sync* {
+  Iterable<String> createFromMap(List<FieldElement> accessibleFields,
+      String className, bool nullable) sync* {
     StringBuffer buffer = StringBuffer();
-    buffer.writeln(
-        '$className ${createSuffix(className)}FromMap(Map<String, dynamic> data){');
+
+    buffer
+      ..writeln(
+          '$className ${createSuffix(className)}FromMap(Map<String, dynamic> data){')
+      ..writeln(_createNullabilityCheck(nullable, true));
+
     for (var el in accessibleFields) {
-      buffer.writeln(_createNullabilityCheck(el, true));
+      buffer.writeln(_createFieldNullabilityCheck(el, true));
     }
+
     buffer.writeln('return $className(');
+
     for (var el in accessibleFields) {
       buffer.writeln(deserializeElement(el, true));
     }
+
     buffer.writeln(');}');
+
     yield buffer.toString();
   }
 }

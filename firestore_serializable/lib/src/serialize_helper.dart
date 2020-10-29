@@ -2,9 +2,9 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:firestore_serializable/src/annotation_helper.dart';
 import 'package:firestore_serializable/src/helper.dart';
 
-class MapHelper {
+class SerializeHelper {
   final String className;
-  MapHelper(this.className);
+  SerializeHelper(this.className);
 
   String _serializeNestedElement(
       Element el, FieldAnnotationHelper annotation, String data) {
@@ -13,16 +13,16 @@ class MapHelper {
     if (type.isDartCoreList) {
       Element subEl = getNestedElement(type);
       String inner = _serializeNestedElement(subEl, annotation, 'data');
-      return data + (inner.isEmpty ? '' : '.map((data)=>$inner).toList()');
+      return data + (inner.isEmpty ? '' : '?.map((data)=>$inner)?.toList()');
     } else if (type.isDartCoreSet) {
       Element subEl = getNestedElement(type);
-      String inner = _serializeNestedElement(subEl, annotation, 'value');
-      return data + (inner.isEmpty ? '' : '.map((data)=>$inner).toSet()');
+      String inner = _serializeNestedElement(subEl, annotation, 'data');
+      return data + (inner.isEmpty ? '' : '?.map((data) => $inner)?.toList()');
     } else if (type.isDartCoreMap) {
       Element subEl = getNestedElement(type);
       String inner = _serializeNestedElement(subEl, annotation, 'data');
       return data +
-          (inner.isEmpty ? '' : '.map((key, data) => MapEntry(key, $inner))');
+          (inner.isEmpty ? '' : '?.map((key, data) => MapEntry(key, $inner))');
     } else {
       return _serializeSimpleElement(el, annotation, data);
     }
@@ -33,15 +33,13 @@ class MapHelper {
     var type = getElementType(el);
 
     if (isFirestoreDataType(type)) {
-      if (isType(type, 'DateTime')) {
-        return '$data != null ? Timestamp.fromDate($data) : null';
-      } else if (data == 'data') {
-        return '';
-      } else {
+      if (data != 'data') {
         return data;
+      } else {
+        return '';
       }
     } else if (hasFirestoreDocumentAnnotation(type)) {
-      return '$data.toMap()';
+      return '$data?.toMap()';
     } else {
       throw Exception(
           'unsupported type ${type?.getDisplayString()} ${el.runtimeType} during serialize');
@@ -54,19 +52,19 @@ class MapHelper {
     String srcName = el.name;
     String destName = annotation.alias ?? el.name;
 
-    String defaultValue = '';
+    String defaultValue = ',';
     if (annotation.defaultValue != null) {
-      defaultValue = ' ?? ${annotation.defaultValue}';
+      defaultValue = '?? ${annotation.defaultValue},';
     }
 
     var type = el.type;
 
-    if (annotation.ignore || type.isDartCoreFunction) {
+    if (annotation.ignore || type.isDartCoreFunction || el.getter == null) {
       return '\t// ignoring attribute \'${type.getDisplayString()} $srcName\'';
     } else {
-      return '"$destName": ' +
+      return 'if(model.$srcName != null) "$destName": ' +
           _serializeNestedElement(el, annotation, 'model.$srcName') +
-          '$defaultValue,';
+          defaultValue;
     }
   }
 

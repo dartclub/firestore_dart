@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:firestore_api/firestore_api.dart';
-import 'package:cloud_firestore/cloud_firestore.dart' as fs;
+import 'package:firebase_admin_interop/firebase_admin_interop.dart' as fs;
 import 'dart:async';
 
 class DataWrapperImpl extends DataWrapper {
@@ -14,9 +14,9 @@ class DataWrapperImpl extends DataWrapper {
     } else if (value is List) {
       return wrapList(List.castFrom(value));
     } else if (value is fs.Timestamp) {
-      return value.toDate();
+      return value.toDateTime();
     } else if (value is fs.Blob) {
-      return _BlobImpl(value.bytes);
+      return _BlobImpl(value.asUint8List());
     } else {
       return value;
     }
@@ -31,7 +31,7 @@ class DataWrapperImpl extends DataWrapper {
     } else if (value is Map) {
       return unwrapMap(value);
     } else if (value is DateTime) {
-      return fs.Timestamp.fromDate(value);
+      return fs.Timestamp.fromDateTime(value);
     } else if (value is List) {
       return unwrapList(value);
     } else if (value is _BlobImpl) {
@@ -45,15 +45,18 @@ class DataWrapperImpl extends DataWrapper {
   dynamic unwrapFieldValue(FieldValue fieldValue) {
     switch (fieldValue.type) {
       case FieldValueType.increment:
-        return fs.FieldValue.increment(fieldValue.value);
+        throw UnimplementedError();
+      // TODO implement return fs.Firestore.fieldValues.increment(fieldValue.value);
       case FieldValueType.delete:
-        return fs.FieldValue.delete();
+        return fs.Firestore.fieldValues.delete();
       case FieldValueType.serverTimestamp:
-        return fs.FieldValue.serverTimestamp();
+        return fs.Firestore.fieldValues.serverTimestamp();
       case FieldValueType.arrayRemove:
-        return fs.FieldValue.arrayRemove(unwrapList(fieldValue.value));
+        return fs.Firestore.fieldValues
+            .arrayRemove(unwrapList(fieldValue.value));
       case FieldValueType.arrayUnion:
-        return fs.FieldValue.arrayUnion(unwrapList(fieldValue.value));
+        return fs.Firestore.fieldValues
+            .arrayUnion(unwrapList(fieldValue.value));
     }
     throw Exception("unknown field value type $fieldValue");
   }
@@ -65,18 +68,18 @@ class _BlobImpl extends Blob {
   _BlobImpl(Uint8List l) : super(l);
 }
 
-class _DocumentSnapshotImpl extends DocumentSnapshot {
+class DocumentSnapshotImpl extends DocumentSnapshot {
   final fs.DocumentSnapshot _documentSnapshot;
 
-  _DocumentSnapshotImpl(this._documentSnapshot);
+  DocumentSnapshotImpl(this._documentSnapshot);
 
   @override
   Map<String, dynamic> get data {
-    return _dataWrapper.wrapMap(_documentSnapshot.data());
+    return _dataWrapper.wrapMap(_documentSnapshot.data.toMap());
   }
 
   @override
-  String get documentID => _documentSnapshot.id;
+  String get documentID => _documentSnapshot.documentID;
 
   @override
   bool get exists => _documentSnapshot.exists;
@@ -90,9 +93,11 @@ class _DocumentSnapshotImpl extends DocumentSnapshot {
       _DocumentReferenceImpl(_documentSnapshot.reference);
 
   @override
-  SnapshotMetadata get metadata => SnapshotMetadata(
-      _documentSnapshot.metadata.hasPendingWrites,
-      _documentSnapshot.metadata.isFromCache);
+  SnapshotMetadata get metadata => throw UnimplementedError();
+  // TODO implement SnapshotMetadata(
+  //  _documentSnapshot.metadata.hasPendingWrites,
+  //  _documentSnapshot.metadata.isFromCache);
+
 }
 
 class _DocumentChangeImpl extends DocumentChange {
@@ -101,7 +106,8 @@ class _DocumentChangeImpl extends DocumentChange {
   _DocumentChangeImpl(this._documentChange);
 
   @override
-  DocumentSnapshot get document => _DocumentSnapshotImpl(_documentChange.doc);
+  DocumentSnapshot get document =>
+      DocumentSnapshotImpl(_documentChange.document);
 
   @override
   int get newIndex => _documentChange.newIndex;
@@ -129,29 +135,30 @@ class _QuerySnapshotImpl extends QuerySnapshot {
   _QuerySnapshotImpl(this._querySnapshot);
 
   @override
-  List<DocumentChange> get documentChanges => _querySnapshot.docChanges
+  List<DocumentChange> get documentChanges => _querySnapshot.documentChanges
       .map((docChange) => _DocumentChangeImpl(docChange))
       .toList();
 
   @override
-  List<DocumentSnapshot> get documents => _querySnapshot.docs
-      .map((snapshot) => _DocumentSnapshotImpl(snapshot))
+  List<DocumentSnapshot> get documents => _querySnapshot.documents
+      .map((snapshot) => DocumentSnapshotImpl(snapshot))
       .toList();
 
   @override
-  bool get empty => _querySnapshot.docs.isEmpty;
+  bool get empty => _querySnapshot.documents.isEmpty;
 
   @override
   void forEach(onEach) {
-    _querySnapshot.docs.forEach((snapshot) {
-      onEach(_DocumentSnapshotImpl(snapshot));
+    _querySnapshot.documents.forEach((snapshot) {
+      onEach(DocumentSnapshotImpl(snapshot));
     });
   }
 
   @override
-  SnapshotMetadata get metadata => SnapshotMetadata(
-      _querySnapshot.metadata.hasPendingWrites,
-      _querySnapshot.metadata.isFromCache);
+  SnapshotMetadata get metadata => throw UnimplementedError();
+  // TODO implement SnapshotMetadata(
+  //  _querySnapshot.metadata.hasPendingWrites,
+  //  _querySnapshot.metadata.isFromCache);
 }
 
 class _DocumentReferenceImpl extends DocumentReference {
@@ -172,31 +179,32 @@ class _DocumentReferenceImpl extends DocumentReference {
 
   @override
   Future<DocumentSnapshot> get document async {
-    return _DocumentSnapshotImpl(await _documentReference.get());
+    return DocumentSnapshotImpl(await _documentReference.get());
   }
 
   @override
-  String get documentID => _documentReference.id;
+  String get documentID => _documentReference.documentID;
 
   @override
   String get path => _documentReference.path;
 
   @override
   Future<void> setData(Map<String, dynamic> data, {bool merge = false}) {
-    return _documentReference.set(
-        _dataWrapper.unwrapMap(data), fs.SetOptions(merge: true));
+    return _documentReference.setData(
+        fs.DocumentData.fromMap(_dataWrapper.unwrapMap(data)),
+        fs.SetOptions(merge: merge));
   }
 
   @override
   Stream<DocumentSnapshot> get snapshots {
-    return _documentReference
-        .snapshots()
-        .map((snapshot) => _DocumentSnapshotImpl(snapshot));
+    return _documentReference.snapshots
+        .map((snapshot) => DocumentSnapshotImpl(snapshot));
   }
 
   @override
   Future<void> update(Map<String, dynamic> data) {
-    return _documentReference.update(_dataWrapper.unwrapMap(data));
+    return _documentReference
+        .updateData(fs.UpdateData.fromMap(_dataWrapper.unwrapMap(data)));
   }
 
   @override
@@ -214,13 +222,13 @@ class _CollectionReferenceImpl extends _QueryImpl
 
   @override
   Future<DocumentReference> add(Map<String, dynamic> document) async {
-    return _DocumentReferenceImpl(
-        await _collectionReference.add(_dataWrapper.unwrapMap(document)));
+    return _DocumentReferenceImpl(await _collectionReference
+        .add(fs.DocumentData.fromMap(_dataWrapper.unwrapMap(document))));
   }
 
   @override
   DocumentReference document([String path]) {
-    return _DocumentReferenceImpl(_collectionReference.doc(path));
+    return _DocumentReferenceImpl(_collectionReference.document(path));
   }
 
   @override
@@ -229,28 +237,15 @@ class _CollectionReferenceImpl extends _QueryImpl
   }
 }
 
-fs.Source _remapSource(Source source) {
-  switch (source) {
-    case Source.serverAndCache:
-      return fs.Source.serverAndCache;
-    case Source.cache:
-      return fs.Source.cache;
-    case Source.server:
-      return fs.Source.server;
-  }
-  throw Exception("unknown source: $source");
-}
-
 class _QueryImpl extends Query {
-  final fs.Query _query;
+  final fs.DocumentQuery _query;
 
   _QueryImpl(this._query);
 
   @override
   Future<QuerySnapshot> getDocuments(
       {Source source = Source.serverAndCache}) async {
-    return _QuerySnapshotImpl(
-        await _query.get(fs.GetOptions(source: _remapSource(source))));
+    return _QuerySnapshotImpl(await _query.get());
   }
 
   @override
@@ -265,9 +260,7 @@ class _QueryImpl extends Query {
 
   @override
   Stream<QuerySnapshot> snapshots({bool includeMetadataChanges = false}) {
-    return _query
-        .snapshots(includeMetadataChanges: includeMetadataChanges)
-        .map((snapshot) => _QuerySnapshotImpl(snapshot));
+    return _query.snapshots.map((snapshot) => _QuerySnapshotImpl(snapshot));
   }
 
   @override
@@ -293,45 +286,59 @@ class _QueryImpl extends Query {
   @override
   Query endAtDocument(DocumentSnapshot documentSnapshot) {
     return _QueryImpl(
-        _query.endAtDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+      _query.endAt(
+          snapshot:
+              (documentSnapshot as DocumentSnapshotImpl)._documentSnapshot),
+    );
   }
 
   @override
   Query endBeforeDocument(DocumentSnapshot documentSnapshot) {
     return _QueryImpl(
-        _query.endBeforeDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+      _query.endBefore(
+          snapshot:
+              (documentSnapshot as DocumentSnapshotImpl)._documentSnapshot),
+    );
   }
 
   @override
   Query startAfterDocument(DocumentSnapshot documentSnapshot) {
     return _QueryImpl(
-        _query.startAfterDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+      _query.startAfter(
+          snapshot:
+              (documentSnapshot as DocumentSnapshotImpl)._documentSnapshot),
+    );
   }
 
   @override
   Query startAtDocument(DocumentSnapshot documentSnapshot) {
     return _QueryImpl(
-        _query.startAtDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+      _query.startAt(
+          snapshot:
+              (documentSnapshot as DocumentSnapshotImpl)._documentSnapshot),
+    );
   }
 
   @override
   Query endAt(List<dynamic> values) {
-    return _QueryImpl(_query.endAt(_dataWrapper.unwrapValue(values)));
+    return _QueryImpl(_query.endAt(values: _dataWrapper.unwrapValue(values)));
   }
 
   @override
   Query endBefore(List<dynamic> values) {
-    return _QueryImpl(_query.endBefore(_dataWrapper.unwrapValue(values)));
+    return _QueryImpl(
+        _query.endBefore(values: _dataWrapper.unwrapValue(values)));
   }
 
   @override
   Query startAfter(List<dynamic> values) {
-    return _QueryImpl(_query.startAfter(_dataWrapper.unwrapValue(values)));
+    return _QueryImpl(
+        _query.startAfter(values: _dataWrapper.unwrapValue(values)));
   }
 
   @override
   Query startAt(List<dynamic> values) {
-    return _QueryImpl(_query.startAt(_dataWrapper.unwrapValue(values)));
+    return _QueryImpl(_query.startAt(values: _dataWrapper.unwrapValue(values)));
   }
 }
 
@@ -353,14 +360,19 @@ class _WriteBatch extends WriteBatch {
   @override
   void setData(DocumentReference document, Map<String, dynamic> data,
       {bool merge = false}) {
-    _writeBatch.set((document as _DocumentReferenceImpl)._documentReference,
-        _dataWrapper.unwrapMap(data), fs.SetOptions(merge: merge));
+    _writeBatch.setData(
+      (document as _DocumentReferenceImpl)._documentReference,
+      fs.DocumentData.fromMap(_dataWrapper.unwrapMap(data)),
+      fs.SetOptions(merge: true),
+    );
   }
 
   @override
   void updateData(DocumentReference document, Map<String, dynamic> data) {
-    _writeBatch.update((document as _DocumentReferenceImpl)._documentReference,
-        _dataWrapper.unwrapMap(data));
+    _writeBatch.updateData(
+      (document as _DocumentReferenceImpl)._documentReference,
+      fs.UpdateData.fromMap(_dataWrapper.unwrapMap(data)),
+    );
   }
 }
 
@@ -379,35 +391,36 @@ class _Transaction extends Transaction {
   Future<DocumentSnapshot> get(DocumentReference documentReference) async {
     fs.DocumentSnapshot snapshot = await _transaction
         .get((documentReference as _DocumentReferenceImpl)._documentReference);
-    return _DocumentSnapshotImpl(snapshot);
+    return DocumentSnapshotImpl(snapshot);
   }
 
   @override
   Future<void> set(
-      DocumentReference documentReference, Map<String, dynamic> data) async {
+      DocumentReference documentReference, Map<String, dynamic> data,
+      {bool merge}) async {
     await _transaction.set(
-        (documentReference as _DocumentReferenceImpl)._documentReference,
-        _dataWrapper.unwrapMap(data));
+      (documentReference as _DocumentReferenceImpl)._documentReference,
+      fs.DocumentData.fromMap(_dataWrapper.unwrapMap(data)),
+      merge: merge,
+    );
   }
 
   @override
   Future<void> update(
       DocumentReference documentReference, Map<String, dynamic> data) async {
     await _transaction.update(
-        (documentReference as _DocumentReferenceImpl)._documentReference,
-        _dataWrapper.unwrapMap(data));
+      (documentReference as _DocumentReferenceImpl)._documentReference,
+      fs.UpdateData.fromMap(_dataWrapper.unwrapMap(data)),
+    );
   }
 }
 
 class FirestoreImpl extends Firestore {
-  final fs.FirebaseFirestore _firestore;
+  final fs.Firestore _firestore;
 
-  FirestoreImpl._(this._firestore);
+  Firestore get instance => this;
 
-  static Firestore instance = FirestoreImpl._(fs.FirebaseFirestore.instance);
-
-  factory FirestoreImpl.fromInstance(fs.FirebaseFirestore instance) =>
-      FirestoreImpl._(instance ?? fs.FirebaseFirestore.instance);
+  FirestoreImpl.fromInstance(this._firestore);
 
   @override
   WriteBatch batch() {
@@ -421,7 +434,7 @@ class FirestoreImpl extends Firestore {
 
   @override
   DocumentReference document(String path) {
-    return _DocumentReferenceImpl(_firestore.doc(path));
+    return _DocumentReferenceImpl(_firestore.document(path));
   }
 
   @override
@@ -430,7 +443,7 @@ class FirestoreImpl extends Firestore {
       {Duration timeout = const Duration(seconds: 5)}) {
     return _firestore.runTransaction<T>((fs.Transaction transaction) {
       return transactionHandler(_Transaction(transaction));
-    }, timeout: timeout);
+    });
   }
 
   @override

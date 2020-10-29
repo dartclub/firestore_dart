@@ -1,5 +1,5 @@
-name: firestore_web
-description: firestore interop for web
+name: firestore_node
+description: firestore interop for node
 version: 1.0.0
 homepage: https://www.github.com/dartclub/firestore_dart
 
@@ -7,14 +7,13 @@ environment:
   sdk: '>=2.1.0 <3.0.0'
 
 dependencies:
-  firestore_api:
 #    path: ../firestore_api
 
+  firestore_api:
     git:
       url: https://github.com/dartclub/firestore_dart
       path: firestore_api
-  firebase:
-    git: https://github.com/FirebaseExtended/firebase-dart
+  firebase_admin_interop: ^2.1.0
 
 dev_dependencies:
   dartclub_lint: 0.2.1

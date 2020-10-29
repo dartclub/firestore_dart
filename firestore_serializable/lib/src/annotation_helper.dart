@@ -24,8 +24,6 @@ class FieldAnnotationHelper {
           obj.getField('defaultValue'),
           [],
         ),
-        flutterValidatorMessage:
-            obj.getField("flutterValidatorMessage").toString(),
       );
     }
   }
@@ -34,13 +32,12 @@ class FieldAnnotationHelper {
   get nullable => attribute.nullable;
   get alias => attribute.alias;
   get defaultValue => attribute.defaultValue;
-  get flutterValidatorMessage => attribute.flutterValidatorMessage;
 }
 
 class ClassAnnotationHelper {
   FirestoreDocument firestoreDocument;
   bool get hasSelfRef => firestoreDocument.hasSelfRef;
-  bool get flutterFormHelper => firestoreDocument.flutterFormHelper;
+  bool get nullable => firestoreDocument.nullable;
 
   ClassAnnotationHelper(ClassElement _cl) {
     ElementAnnotation firestoreDocumentAnnotation = _cl.metadata.firstWhere(
@@ -52,7 +49,7 @@ class ClassAnnotationHelper {
 
       firestoreDocument = FirestoreDocument(
         hasSelfRef: obj.getField("hasSelfRef").toBoolValue(),
-        flutterFormHelper: obj.getField("flutterFormHelper").toBoolValue(),
+        nullable: obj.getField("nullable").toBoolValue(),
       );
     }
   }
