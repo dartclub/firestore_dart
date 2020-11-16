@@ -8,7 +8,7 @@ environment:
 
 
 dependencies:
-  cloud_firestore: ^0.14.1+3
+  cloud_firestore: ^0.14.3
   firestore_api:
 #    path: ../firestore_api
 
