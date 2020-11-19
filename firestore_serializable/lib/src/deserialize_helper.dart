@@ -14,7 +14,7 @@ class DeserializeHelper {
       Element subEl = getNestedElement(type);
       String inner = _deserializeNestedElement(subEl, annotation, 'data');
       DartType subType = getElementType(subEl);
-      String subTypeLabel = subType.getDisplayString();
+      String subTypeLabel = subType.element.name;
 
       if (inner.isEmpty) {
         var name = (data != 'data' ? data : inner);
@@ -26,7 +26,7 @@ class DeserializeHelper {
       Element subEl = getNestedElement(type);
       String inner = _deserializeNestedElement(subEl, annotation, 'data');
       DartType subType = getElementType(subEl);
-      String subTypeLabel = subType.getDisplayString();
+      String subTypeLabel = subType.element.name;
 
       if (inner.isEmpty) {
         var name = (data != 'data' ? data : inner);
@@ -75,10 +75,10 @@ class DeserializeHelper {
         return data;
       }
     } else if (hasFirestoreDocumentAnnotation(type)) {
-      return '${type.getDisplayString()}.fromMap(Map<String, dynamic>.from($data ?? {}))';
+      return '${type.element.name}.fromMap(Map<String, dynamic>.from($data ?? {}))';
     } else {
       throw Exception(
-          'unsupported type ${type?.getDisplayString()} ${el.runtimeType} during deserialize');
+          'unsupported type ${type?.getDisplayString(withNullability: true)} ${el.runtimeType} during deserialize');
     }
   }
 
@@ -87,7 +87,9 @@ class DeserializeHelper {
 
     String srcName = annotation.alias ?? el.name;
     String destName = el.name;
-    String data = fromMap ? 'data["$srcName"]' : 'snapshot.data["$srcName"]';
+
+    String base = fromMap ? "data" : "snapshot.data()";
+    String data = fromMap ? '$base["$srcName"]' : '$base["$srcName"]';
 
     String defaultValue = ',';
     if (annotation.defaultValue != null) {
@@ -96,9 +98,12 @@ class DeserializeHelper {
     var type = el.type;
 
     if (annotation.ignore || type.isDartCoreFunction || el.setter == null) {
-      return '\t// ignoring attribute \'${el.type.getDisplayString()} $destName\'';
+      return '\t// ignoring attribute \'${el.type.element.name} $destName\'';
     } else {
+      String nullCheck =
+          '($base == null || !$base.containsKey("$srcName")) ? null : ';
       return '$destName: ' +
+          (annotation.nullable ? nullCheck : "") +
           _deserializeNestedElement(el, annotation, data) +
           defaultValue;
     }
@@ -116,7 +121,7 @@ class DeserializeHelper {
   _createFieldNullabilityCheck(FieldElement el, bool fromMap) {
     FieldAnnotationHelper annotation = FieldAnnotationHelper(el);
     String srcName = annotation.alias ?? el.name;
-    String data = fromMap ? 'data["$srcName"]' : 'snapshot.data["$srcName"]';
+    String data = fromMap ? 'data["$srcName"]' : 'snapshot.data()["$srcName"]';
 
     return annotation.nullable ? '' : 'assert($data != null);';
   }
