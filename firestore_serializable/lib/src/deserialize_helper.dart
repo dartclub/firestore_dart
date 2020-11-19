@@ -88,7 +88,7 @@ class DeserializeHelper {
     String srcName = annotation.alias ?? el.name;
     String destName = el.name;
 
-    String base = fromMap ? "data" : "snapshot.data()";
+    String base = fromMap ? "data" : "snapshot.data";
     String data = fromMap ? '$base["$srcName"]' : '$base["$srcName"]';
 
     String defaultValue = ',';
@@ -121,7 +121,7 @@ class DeserializeHelper {
   _createFieldNullabilityCheck(FieldElement el, bool fromMap) {
     FieldAnnotationHelper annotation = FieldAnnotationHelper(el);
     String srcName = annotation.alias ?? el.name;
-    String data = fromMap ? 'data["$srcName"]' : 'snapshot.data()["$srcName"]';
+    String data = fromMap ? 'data["$srcName"]' : 'snapshot.data["$srcName"]';
 
     return annotation.nullable ? '' : 'assert($data != null);';
   }
