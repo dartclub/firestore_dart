@@ -99,6 +99,7 @@ enum Source {
   cache,
 }
 
+// TODO implement
 abstract class Firestore {
   CollectionReference collection(String path);
   Query collectionGroup(String path);
@@ -140,14 +141,21 @@ abstract class DocumentSnapshot {
 
 abstract class DocumentReference {
   Future<DocumentSnapshot> get document;
+  String get id;
+  @Deprecated("Deprecated in favor of `.id`")
   String get documentID;
   String get path;
+
+  @Deprecated("Deprecated in favor of `.set()`")
   Future<void> setData(Map<String, dynamic> data, {bool merge: false});
+  Future<void> set(Map<String, dynamic> data, [SetOptions options]);
   Future<void> update(Map<String, dynamic> data);
   Future<void> delete();
   Stream<DocumentSnapshot> get snapshots;
   CollectionReference collection(String collectionPath);
   CollectionReference get parent;
+
+  Future<DocumentSnapshot> get([GetOptions options]);
 
   @override
   bool operator ==(dynamic o) => o is DocumentReference && o.path == path;
@@ -159,6 +167,21 @@ abstract class DocumentReference {
   String toString() {
     return path;
   }
+}
+
+class GetOptions {
+  final Source source;
+
+  const GetOptions({
+    this.source = Source.serverAndCache,
+  }) : assert(source != null);
+}
+
+class SetOptions {
+  final List<dynamic> mergeFields;
+  final bool merge;
+
+  SetOptions({this.mergeFields, this.merge});
 }
 
 abstract class CollectionReference extends Query {
