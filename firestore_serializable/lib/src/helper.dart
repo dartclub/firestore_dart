@@ -28,7 +28,7 @@ String getName(Element el) {
   return name;
 }
 
-bool isType(DartType t, String n) => t.getDisplayString() == n;
+bool isType(DartType t, String n) => t.element.name == n;
 
 bool isFirestoreDataType(DartType type) {
   return type != null &&
@@ -80,8 +80,6 @@ DartType getElementType(Element el) {
     return el.type;
   } else if (el is ClassElement) {
     return el.thisType;
-  } else if (el is DynamicElementImpl) {
-    return el.type;
   } else if (el is TypeParameterElementImpl) {
     return el.defaultType;
   } else {
@@ -91,7 +89,7 @@ DartType getElementType(Element el) {
 }
 
 Element getNestedElement(DartType type) {
-  if (type is TypeParameterType && type.getDisplayString() == 'E') {
+  if (type is TypeParameterType && type.element.name == 'E') {
     return DynamicElementImpl();
   } else if (type is InterfaceType) {
     return type.typeArguments.first.element;

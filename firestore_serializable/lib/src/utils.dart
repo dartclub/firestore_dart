@@ -90,7 +90,7 @@ Object getLiteral(
   } else if (dartObject.type is FunctionType) {
     badType = 'Function';
   } else if (!reader.isLiteral) {
-    badType = dartObject.type.getDisplayString();
+    badType = dartObject.type.element.name;
   }
 
   if (badType != null) {
