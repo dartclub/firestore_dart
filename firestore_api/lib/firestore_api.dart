@@ -194,6 +194,9 @@ abstract class Query {
     dynamic isGreaterThan,
     dynamic isGreaterThanOrEqualTo,
     dynamic arrayContains,
+    List<dynamic> isIn,
+    List<dynamic> isNotIn,
+    List<dynamic> arrayContainsAny,
     bool isNull,
   });
   Query orderBy(String field, {bool descending: false});
