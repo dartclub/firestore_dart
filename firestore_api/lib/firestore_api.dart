@@ -48,6 +48,9 @@ abstract class DataWrapper {
   ///
   /// returns a new Map
   List<dynamic> unwrapList(List data) {
+    if (data == null) {
+      return null;
+    }
     List<dynamic> result = [];
     data.forEach((value) {
       result.add(unwrapValue(value));

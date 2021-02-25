@@ -153,7 +153,7 @@ packages:
     description:
       path: firestore_api
       ref: HEAD
-      resolved-ref: "42a8f532dbd567bc766b0d9e303c61e1d8124269"
+      resolved-ref: "41499a2cfb5f7183366d4053eac9c8d868f640ad"
       url: "https://github.com/dartclub/firestore_dart"
     source: git
     version: "0.0.1"

@@ -277,18 +277,27 @@ class _QueryImpl extends Query {
       isLessThanOrEqualTo,
       isGreaterThan,
       isGreaterThanOrEqualTo,
+      whereIn,
+      whereNotIn,
+      arrayContainsAny,
       arrayContains,
       bool isNull}) {
-    return _QueryImpl(_query.where(
-      field,
-      isEqualTo: _dataWrapper.unwrapValue(isEqualTo),
-      isGreaterThan: _dataWrapper.unwrapValue(isGreaterThan),
-      isGreaterThanOrEqualTo: _dataWrapper.unwrapValue(isGreaterThanOrEqualTo),
-      isLessThan: _dataWrapper.unwrapValue(isLessThan),
-      isLessThanOrEqualTo: _dataWrapper.unwrapValue(isLessThanOrEqualTo),
-      isNull: _dataWrapper.unwrapValue(isNull),
-      arrayContains: _dataWrapper.unwrapValue(arrayContains),
-    ));
+    return _QueryImpl(
+      _query.where(
+        field,
+        isEqualTo: _dataWrapper.unwrapValue(isEqualTo),
+        isGreaterThan: _dataWrapper.unwrapValue(isGreaterThan),
+        isGreaterThanOrEqualTo:
+            _dataWrapper.unwrapValue(isGreaterThanOrEqualTo),
+        isLessThan: _dataWrapper.unwrapValue(isLessThan),
+        isLessThanOrEqualTo: _dataWrapper.unwrapValue(isLessThanOrEqualTo),
+        isNull: _dataWrapper.unwrapValue(isNull),
+        arrayContains: _dataWrapper.unwrapValue(arrayContains),
+        whereIn: _dataWrapper.unwrapList(whereIn),
+        whereNotIn: _dataWrapper.unwrapList(whereNotIn),
+        arrayContainsAny: _dataWrapper.unwrapList(arrayContainsAny),
+      ),
+    );
   }
 
   @override
