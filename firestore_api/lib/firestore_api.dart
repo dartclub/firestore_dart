@@ -194,8 +194,8 @@ abstract class Query {
     dynamic isGreaterThan,
     dynamic isGreaterThanOrEqualTo,
     dynamic arrayContains,
-    List<dynamic> isIn,
-    List<dynamic> isNotIn,
+    List<dynamic> whereIn,
+    List<dynamic> whereNotIn,
     List<dynamic> arrayContainsAny,
     bool isNull,
   });
