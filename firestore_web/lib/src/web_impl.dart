@@ -280,9 +280,15 @@ class _QueryImpl extends Query {
     } else if (arrayContains != null) {
       compareOperator = "array-contains";
       value = arrayContains;
-    }
-    if (whereIn != null || whereNotIn != null || arrayContainsAny != null) {
-      throw Exception("Not implemented yet");
+    } else if (whereIn != null) {
+      compareOperator = "in";
+      value = whereIn;
+    } else if (whereNotIn != null) {
+      compareOperator = "not-in";
+      value = whereNotIn;
+    } else if (arrayContainsAny != null) {
+      compareOperator = "array-contains-any";
+      value = arrayContainsAny;
     }
     if (compareOperator.isEmpty) {
       return this;
