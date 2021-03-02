@@ -256,6 +256,9 @@ class _QueryImpl extends Query {
       isGreaterThan,
       isGreaterThanOrEqualTo,
       arrayContains,
+      whereIn,
+      whereNotIn,
+      arrayContainsAny,
       bool isNull}) {
     String compareOperator = "";
     var value = null;
@@ -277,6 +280,9 @@ class _QueryImpl extends Query {
     } else if (arrayContains != null) {
       compareOperator = "array-contains";
       value = arrayContains;
+    }
+    if (whereIn != null || whereNotIn != null || arrayContainsAny != null) {
+      throw Exception("Not implemented yet");
     }
     if (compareOperator.isEmpty) {
       return this;
