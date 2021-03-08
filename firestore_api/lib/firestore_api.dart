@@ -165,7 +165,7 @@ abstract class CollectionReference extends Query {
   Future<DocumentReference> add(Map<String, dynamic> document);
   DocumentReference document([String path]);
   Query orderBy(String field, {bool descending: false});
-  DocumentReference get parent;
+  DocumentReference? get parent;
 }
 
 abstract class QuerySnapshot {
@@ -188,16 +188,16 @@ abstract class Query {
   Future<QuerySnapshot> getDocuments({Source source = Source.serverAndCache});
   Query where(
     String field, {
-    dynamic isEqualTo,
-    dynamic isLessThan,
-    dynamic isLessThanOrEqualTo,
-    dynamic isGreaterThan,
-    dynamic isGreaterThanOrEqualTo,
-    dynamic arrayContains,
-    List<dynamic> whereIn,
-    List<dynamic> whereNotIn,
-    List<dynamic> arrayContainsAny,
-    bool isNull,
+    dynamic? isEqualTo,
+    dynamic? isLessThan,
+    dynamic? isLessThanOrEqualTo,
+    dynamic? isGreaterThan,
+    dynamic? isGreaterThanOrEqualTo,
+    dynamic? arrayContains,
+    List<dynamic>? whereIn,
+    List<dynamic>? whereNotIn,
+    List<dynamic>? arrayContainsAny,
+    bool? isNull,
   });
   Query orderBy(String field, {bool descending: false});
   Query limit(int length);
