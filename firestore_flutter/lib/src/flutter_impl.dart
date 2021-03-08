@@ -29,7 +29,7 @@ class DataWrapperImpl extends DataWrapper {
     } else if (value is FieldValue) {
       return unwrapFieldValue(value);
     } else if (value is Map) {
-      return unwrapMap(value);
+      return unwrapMap(Map.castFrom(value));
     } else if (value is DateTime) {
       return fs.Timestamp.fromDate(value);
     } else if (value is List) {
@@ -51,11 +51,10 @@ class DataWrapperImpl extends DataWrapper {
       case FieldValueType.serverTimestamp:
         return fs.FieldValue.serverTimestamp();
       case FieldValueType.arrayRemove:
-        return fs.FieldValue.arrayRemove(unwrapList(fieldValue.value));
+        return fs.FieldValue.arrayRemove(unwrapList(fieldValue.value)!);
       case FieldValueType.arrayUnion:
-        return fs.FieldValue.arrayUnion(unwrapList(fieldValue.value));
+        return fs.FieldValue.arrayUnion(unwrapList(fieldValue.value)!);
     }
-    throw Exception("unknown field value type $fieldValue");
   }
 }
 
@@ -71,8 +70,9 @@ class _DocumentSnapshotImpl extends DocumentSnapshot {
   _DocumentSnapshotImpl(this._documentSnapshot);
 
   @override
-  Map<String, dynamic> get data {
-    return _dataWrapper.wrapMap(_documentSnapshot.data());
+  Map<String, dynamic>? get data {
+    var data = _documentSnapshot.data();
+    return data != null ? _dataWrapper.wrapMap(data) : null;
   }
 
   @override
@@ -119,7 +119,6 @@ class _DocumentChangeImpl extends DocumentChange {
       case fs.DocumentChangeType.removed:
         return DocumentChangeType.removed;
     }
-    throw Exception("Unknown type ${_documentChange.type}");
   }
 }
 
@@ -219,13 +218,15 @@ class _CollectionReferenceImpl extends _QueryImpl
   }
 
   @override
-  DocumentReference document([String path]) {
+  DocumentReference document([String? path]) {
     return _DocumentReferenceImpl(_collectionReference.doc(path));
   }
 
   @override
-  DocumentReference get parent {
-    return _DocumentReferenceImpl(_collectionReference.parent);
+  DocumentReference? get parent {
+    return _collectionReference.parent == null
+        ? null
+        : _DocumentReferenceImpl(_collectionReference.parent!);
   }
 }
 
@@ -238,7 +239,6 @@ fs.Source _remapSource(Source source) {
     case Source.server:
       return fs.Source.server;
   }
-  throw Exception("unknown source: $source");
 }
 
 class _QueryImpl extends Query {
@@ -281,7 +281,7 @@ class _QueryImpl extends Query {
       whereNotIn,
       arrayContainsAny,
       arrayContains,
-      bool isNull}) {
+      isNull}) {
     return _QueryImpl(
       _query.where(
         field,
@@ -417,7 +417,7 @@ class FirestoreImpl extends Firestore {
   static Firestore instance = FirestoreImpl._(fs.FirebaseFirestore.instance);
 
   factory FirestoreImpl.fromInstance(fs.FirebaseFirestore instance) =>
-      FirestoreImpl._(instance ?? fs.FirebaseFirestore.instance);
+      FirestoreImpl._(instance);
 
   @override
   WriteBatch batch() {
