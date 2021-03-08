@@ -53,7 +53,10 @@ abstract class DataWrapper {
   /// unwraps this API values into Firestore internal values
   ///
   /// returns a new Map
-  List<dynamic> unwrapList(List data) {
+  List<dynamic>? unwrapList(List? data) {
+    if (data == null) {
+      return null;
+    }
     List<dynamic> result = [];
     data.forEach((value) {
       result.add(unwrapValue(value));
