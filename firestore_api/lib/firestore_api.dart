@@ -48,9 +48,6 @@ abstract class DataWrapper {
   ///
   /// returns a new Map
   List<dynamic> unwrapList(List data) {
-    if (data == null) {
-      return null;
-    }
     List<dynamic> result = [];
     data.forEach((value) {
       result.add(unwrapValue(value));
@@ -282,7 +279,7 @@ abstract class BatchHelperService {
   final Firestore firestore;
   final DocumentReference reference;
 
-  WriteBatch batch;
+  late WriteBatch batch;
   int batchCount = 0;
 
   BatchHelperService(this.reference, this.firestore);
@@ -338,8 +335,8 @@ abstract class BatchHelperService {
 
 mixin BatchHelper {
   static const MAX_ENTRIES_PER_BATCH = 450; // real limit is 500
-  Firestore _batchFirestore;
-  WriteBatch _batch;
+  late Firestore _batchFirestore;
+  late WriteBatch _batch;
   int _batchCount = 0;
   bool logging = false;
 
