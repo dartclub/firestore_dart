@@ -14,7 +14,10 @@ abstract class DataWrapper {
   /// wraps Firestore library values into this API values
   ///
   /// returns a new Map
-  Map<String, dynamic> wrapMap(Map<String, dynamic> data) {
+  Map<String, dynamic>? wrapMap(Map<String, dynamic>? data) {
+    if (data == null) {
+      return null;
+    }
     Map<String, dynamic> result = {};
     data.forEach((key, value) {
       result[key] = wrapValue(value);
@@ -25,7 +28,10 @@ abstract class DataWrapper {
   /// wraps Firestore library values into this API values
   ///
   /// returns a new List
-  List<dynamic> wrapList(List<dynamic> data) {
+  List<dynamic>? wrapList(List<dynamic>? data) {
+    if (data == null) {
+      return null;
+    }
     List<dynamic> result = [];
     data.forEach((value) {
       result.add(wrapValue(value));
@@ -123,7 +129,7 @@ abstract class Transaction {
 }
 
 abstract class DocumentSnapshot {
-  Map<String, dynamic> get data;
+  Map<String, dynamic>? get data;
   String get documentID;
   bool get exists;
   DocumentReference get reference;
@@ -135,7 +141,7 @@ abstract class DocumentSnapshot {
   @deprecated
   DocumentReference get ref;
   @deprecated
-  dynamic get(String field) => data[field];
+  dynamic get(String field) => data == null ? null : data![field];
 }
 
 abstract class DocumentReference {
