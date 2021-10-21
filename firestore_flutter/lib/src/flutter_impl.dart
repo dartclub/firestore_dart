@@ -302,26 +302,26 @@ class _QueryImpl extends Query {
 
   @override
   Query endAtDocument(DocumentSnapshot documentSnapshot) {
-    return _QueryImpl(
-        _query.endAtDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+    return _QueryImpl(_query.endAtDocument(
+        (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot));
   }
 
   @override
   Query endBeforeDocument(DocumentSnapshot documentSnapshot) {
-    return _QueryImpl(
-        _query.endBeforeDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+    return _QueryImpl(_query.endBeforeDocument(
+        (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot));
   }
 
   @override
   Query startAfterDocument(DocumentSnapshot documentSnapshot) {
-    return _QueryImpl(
-        _query.startAfterDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+    return _QueryImpl(_query.startAfterDocument(
+        (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot));
   }
 
   @override
   Query startAtDocument(DocumentSnapshot documentSnapshot) {
-    return _QueryImpl(
-        _query.startAtDocument(_dataWrapper.unwrapValue(documentSnapshot)));
+    return _QueryImpl(_query.startAtDocument(
+        (documentSnapshot as _DocumentSnapshotImpl)._documentSnapshot));
   }
 
   @override
