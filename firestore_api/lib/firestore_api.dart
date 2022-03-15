@@ -154,7 +154,7 @@ abstract class DocumentReference {
   Future<void> setData(Map<String, dynamic> data, {bool merge: false});
   Future<void> update(Map<String, dynamic> data);
   Future<void> delete();
-  Stream<DocumentSnapshot> get snapshots;
+  Stream<DocumentSnapshot> snapshots({bool includeMetadataChanges = false});
   CollectionReference collection(String collectionPath);
   CollectionReference get parent;
 
