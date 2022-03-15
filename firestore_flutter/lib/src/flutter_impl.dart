@@ -187,9 +187,9 @@ class _DocumentReferenceImpl extends DocumentReference {
   }
 
   @override
-  Stream<DocumentSnapshot> get snapshots {
+  Stream<DocumentSnapshot> snapshots({bool includeMetadataChanges = false}) {
     return _documentReference
-        .snapshots()
+        .snapshots(includeMetadataChanges: includeMetadataChanges)
         .map((snapshot) => _DocumentSnapshotImpl(snapshot));
   }
 
