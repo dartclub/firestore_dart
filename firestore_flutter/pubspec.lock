@@ -144,9 +144,11 @@ packages:
   firestore_api:
     dependency: "direct main"
     description:
-      path: "../firestore_api"
-      relative: true
-    source: path
+      path: firestore_api
+      ref: HEAD
+      resolved-ref: "3476800be18d24deb303a33d10491c4dc6bb11cb"
+      url: "https://github.com/dartclub/firestore_dart"
+    source: git
     version: "1.1.0"
   flutter:
     dependency: "direct main"
