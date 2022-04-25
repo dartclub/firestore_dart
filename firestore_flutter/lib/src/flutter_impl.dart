@@ -8,7 +8,7 @@ class DataWrapperImpl extends DataWrapper {
   @override
   dynamic wrapValue(dynamic value) {
     if (value is fs.DocumentReference) {
-      return _DocumentReferenceImpl(value);
+      return _DocumentReferenceImpl(value as fs.DocumentReference<DynamicMap>);
     } else if (value is Map) {
       return wrapMap(Map.castFrom(value));
     } else if (value is List) {
@@ -65,13 +65,13 @@ class _BlobImpl extends Blob {
 }
 
 class _DocumentSnapshotImpl extends DocumentSnapshot {
-  final fs.DocumentSnapshot _documentSnapshot;
+  final fs.DocumentSnapshot<DynamicMap> _documentSnapshot;
 
   _DocumentSnapshotImpl(this._documentSnapshot);
 
   @override
   Map<String, dynamic>? get data {
-    var data = _documentSnapshot.data();
+    DynamicMap? data = _documentSnapshot.data();
     return data != null ? _dataWrapper.wrapMap(data) : null;
   }
 
@@ -96,7 +96,7 @@ class _DocumentSnapshotImpl extends DocumentSnapshot {
 }
 
 class _DocumentChangeImpl extends DocumentChange {
-  final fs.DocumentChange _documentChange;
+  final fs.DocumentChange<DynamicMap> _documentChange;
 
   _DocumentChangeImpl(this._documentChange);
 
@@ -123,7 +123,7 @@ class _DocumentChangeImpl extends DocumentChange {
 }
 
 class _QuerySnapshotImpl extends QuerySnapshot {
-  final fs.QuerySnapshot _querySnapshot;
+  final fs.QuerySnapshot<DynamicMap> _querySnapshot;
 
   _QuerySnapshotImpl(this._querySnapshot);
 
@@ -154,7 +154,7 @@ class _QuerySnapshotImpl extends QuerySnapshot {
 }
 
 class _DocumentReferenceImpl extends DocumentReference {
-  final fs.DocumentReference _documentReference;
+  final fs.DocumentReference<DynamicMap> _documentReference;
 
   _DocumentReferenceImpl(this._documentReference);
 
@@ -206,7 +206,7 @@ class _DocumentReferenceImpl extends DocumentReference {
 
 class _CollectionReferenceImpl extends _QueryImpl
     implements CollectionReference {
-  final fs.CollectionReference _collectionReference;
+  final fs.CollectionReference<DynamicMap> _collectionReference;
 
   _CollectionReferenceImpl(this._collectionReference)
       : super(_collectionReference);
@@ -242,7 +242,7 @@ fs.Source _remapSource(Source source) {
 }
 
 class _QueryImpl extends Query {
-  final fs.Query _query;
+  final fs.Query<DynamicMap> _query;
 
   _QueryImpl(this._query);
 
@@ -387,7 +387,7 @@ class _Transaction extends Transaction {
 
   @override
   Future<DocumentSnapshot> get(DocumentReference documentReference) async {
-    fs.DocumentSnapshot snapshot = await _transaction
+    fs.DocumentSnapshot<DynamicMap> snapshot = await _transaction
         .get((documentReference as _DocumentReferenceImpl)._documentReference);
     return _DocumentSnapshotImpl(snapshot);
   }
