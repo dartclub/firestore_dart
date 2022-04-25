@@ -139,11 +139,6 @@ abstract class DocumentSnapshot {
   /// Metadata about this snapshot concerning its source and if it has local
   /// modifications.
   SnapshotMetadata get metadata;
-
-  @deprecated
-  DocumentReference get ref;
-  @deprecated
-  dynamic get(String field) => data == null ? null : data![field];
 }
 
 abstract class DocumentReference {

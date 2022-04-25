@@ -82,10 +82,6 @@ class _DocumentSnapshotImpl extends DocumentSnapshot {
   bool get exists => _documentSnapshot.exists;
 
   @override
-  DocumentReference get ref =>
-      _DocumentReferenceImpl(_documentSnapshot.reference);
-
-  @override
   DocumentReference get reference =>
       _DocumentReferenceImpl(_documentSnapshot.reference);
 
