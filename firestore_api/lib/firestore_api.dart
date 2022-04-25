@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 typedef OnEachDocumentSnapshot = Function(DocumentSnapshot snapshot);
+typedef DynamicMap = Map<String, dynamic>;
 
 abstract class DataWrapper {
   dynamic wrapValue(dynamic value);
@@ -14,11 +15,11 @@ abstract class DataWrapper {
   /// wraps Firestore library values into this API values
   ///
   /// returns a new Map
-  Map<String, dynamic>? wrapMap(Map<String, dynamic>? data) {
+  DynamicMap? wrapMap(DynamicMap? data) {
     if (data == null) {
       return null;
     }
-    Map<String, dynamic> result = {};
+    DynamicMap result = {};
     data.forEach((key, value) {
       result[key] = wrapValue(value);
     });
@@ -42,8 +43,8 @@ abstract class DataWrapper {
   /// unwraps this API values into Firestore internal values
   ///
   /// returns a new Map
-  Map<String, dynamic> unwrapMap(Map<String, dynamic> data) {
-    Map<String, dynamic> result = {};
+  DynamicMap unwrapMap(DynamicMap data) {
+    DynamicMap result = {};
     data.forEach((key, value) {
       result[key] = unwrapValue(value);
     });
@@ -124,15 +125,13 @@ abstract class Transaction {
 
   Future<void> delete(DocumentReference documentReference);
 
-  Future<void> update(
-      DocumentReference documentReference, Map<String, dynamic> data);
+  Future<void> update(DocumentReference documentReference, DynamicMap data);
 
-  Future<void> set(
-      DocumentReference documentReference, Map<String, dynamic> data);
+  Future<void> set(DocumentReference documentReference, DynamicMap data);
 }
 
 abstract class DocumentSnapshot {
-  Map<String, dynamic>? get data;
+  DynamicMap? get data;
   String get documentID;
   bool get exists;
   DocumentReference get reference;
@@ -151,8 +150,8 @@ abstract class DocumentReference {
   Future<DocumentSnapshot> get document;
   String get documentID;
   String get path;
-  Future<void> setData(Map<String, dynamic> data, {bool merge: false});
-  Future<void> update(Map<String, dynamic> data);
+  Future<void> setData(DynamicMap data, {bool merge: false});
+  Future<void> update(DynamicMap data);
   Future<void> delete();
   Stream<DocumentSnapshot> snapshots({bool includeMetadataChanges = false});
   CollectionReference collection(String collectionPath);
@@ -171,7 +170,7 @@ abstract class DocumentReference {
 }
 
 abstract class CollectionReference extends Query {
-  Future<DocumentReference> add(Map<String, dynamic> document);
+  Future<DocumentReference> add(DynamicMap document);
   DocumentReference document([String path]);
   Query orderBy(String field, {bool descending: false});
   DocumentReference? get parent;
@@ -238,9 +237,9 @@ enum DocumentChangeType {
 abstract class WriteBatch {
   Future<void> commit();
   void delete(DocumentReference document);
-  void setData(DocumentReference document, Map<String, dynamic> data,
+  void setData(DocumentReference document, DynamicMap data,
       {bool merge = false});
-  void updateData(DocumentReference document, Map<String, dynamic> data);
+  void updateData(DocumentReference document, DynamicMap data);
 }
 
 enum FieldValueType {
@@ -293,7 +292,7 @@ abstract class BatchHelperService {
 
   BatchHelperService(this.reference, this.firestore);
 
-  processInternal({Map<String, Object> data});
+  processInternal({DynamicMap data});
 
   _addDeleteToBatch(DocumentReference ref,
       {int commitAfter = MAX_ENTRIES_PER_BATCH}) async {
@@ -301,7 +300,7 @@ abstract class BatchHelperService {
     await _processBatch(commitAfter);
   }
 
-  _addUpdateToBatch(DocumentReference ref, Map<String, Object> data,
+  _addUpdateToBatch(DocumentReference ref, DynamicMap data,
       {int commitAfter = MAX_ENTRIES_PER_BATCH}) async {
     batch.updateData(ref, data);
     await _processBatch(commitAfter);
@@ -322,7 +321,7 @@ abstract class BatchHelperService {
     return _addDeleteToBatch(reference, commitAfter: 0);
   }
 
-  update(Map<String, Object> data) async {
+  update(DynamicMap data) async {
     batch = firestore.batch();
     await processInternal(data: data);
     return _addUpdateToBatch(reference, data, commitAfter: 0);
@@ -335,7 +334,7 @@ abstract class BatchHelperService {
   }
 
   Future updateSnapshots(
-      Iterable<DocumentSnapshot> snapshots, Map<String, Object> data) async {
+      Iterable<DocumentSnapshot> snapshots, DynamicMap data) async {
     for (DocumentSnapshot snapshot in snapshots) {
       await _addUpdateToBatch(snapshot.reference, data);
     }
@@ -369,7 +368,7 @@ mixin BatchHelper {
     await _processBatch(commitAfter);
   }
 
-  addUpdateToBatch(DocumentReference ref, Map<String, dynamic> data,
+  addUpdateToBatch(DocumentReference ref, DynamicMap data,
       {int commitAfter = MAX_ENTRIES_PER_BATCH}) async {
     _batch.updateData(ref, data);
     if (logging) {
@@ -378,7 +377,7 @@ mixin BatchHelper {
     await _processBatch(commitAfter);
   }
 
-  addSetDataToBatch(DocumentReference ref, Map<String, dynamic> data,
+  addSetDataToBatch(DocumentReference ref, DynamicMap data,
       {int commitAfter = MAX_ENTRIES_PER_BATCH, bool merge = false}) async {
     _batch.setData(ref, data, merge: merge);
     if (logging) {

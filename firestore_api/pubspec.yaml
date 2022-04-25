@@ -1,10 +1,10 @@
 name: firestore_api
 description: This project tries to create a plattform independend API in Dart for Cloud Firestore.
-version: 1.1.0
+version: 2.0.0
 homepage: https://www.github.com/dartclub/firestore_dart
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: ">=2.16.0 <3.0.0"
 
 dev_dependencies:
   dartclub_lint: 0.2.1
