@@ -10,10 +10,10 @@ environment:
 dependencies:
   cloud_firestore: ^3.1.13
   firestore_api:
-    path: ../firestore_api
-#    git:
-#      url: https://github.com/dartclub/firestore_dart
-#      path: firestore_api
+#    path: ../firestore_api
+    git:
+      url: https://github.com/dartclub/firestore_dart
+      path: firestore_api
   flutter:
     sdk: flutter
   
