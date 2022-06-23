@@ -349,7 +349,7 @@ mixin BatchHelper {
   }
 
   finishBatch() async {
-    if (_batch != null && _batchCount > 0) {
+    if (_batchCount > 0) {
       return _batch.commit();
     }
   }
