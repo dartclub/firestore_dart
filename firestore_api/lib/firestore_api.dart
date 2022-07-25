@@ -348,13 +348,13 @@ mixin BatchHelper {
     _batch = firestore.batch();
   }
 
-  finishBatch() async {
+  Future<void> finishBatch() async {
     if (_batchCount > 0) {
       return _batch.commit();
     }
   }
 
-  addDeleteToBatch(DocumentReference ref,
+  Future<void> addDeleteToBatch(DocumentReference ref,
       {int commitAfter = MAX_ENTRIES_PER_BATCH}) async {
     _batch.delete(ref);
     if (logging) {
@@ -363,7 +363,7 @@ mixin BatchHelper {
     await _processBatch(commitAfter);
   }
 
-  addUpdateToBatch(DocumentReference ref, DynamicMap data,
+  Future<void> addUpdateToBatch(DocumentReference ref, DynamicMap data,
       {int commitAfter = MAX_ENTRIES_PER_BATCH}) async {
     _batch.updateData(ref, data);
     if (logging) {
@@ -372,7 +372,7 @@ mixin BatchHelper {
     await _processBatch(commitAfter);
   }
 
-  addSetDataToBatch(DocumentReference ref, DynamicMap data,
+  Future<void> addSetDataToBatch(DocumentReference ref, DynamicMap data,
       {int commitAfter = MAX_ENTRIES_PER_BATCH, bool merge = false}) async {
     _batch.setData(ref, data, merge: merge);
     if (logging) {
