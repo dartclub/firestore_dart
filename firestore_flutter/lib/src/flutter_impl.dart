@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firestore_api/firestore_api.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' as fs;
 import 'dart:async';
@@ -443,4 +444,9 @@ class FirestoreImpl extends Firestore {
   Query collectionGroup(String path) {
     return _QueryImpl(_firestore.collectionGroup(path));
   }
+}
+
+useFirestoreEmulator(FirebaseApp app, String host, int port) {
+  fs.FirebaseFirestore firestore = fs.FirebaseFirestore.instanceFor(app: app);
+  firestore.useFirestoreEmulator(host, port);
 }

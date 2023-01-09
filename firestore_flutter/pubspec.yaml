@@ -8,6 +8,7 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
+  firebase_core: ^1.15.0
   cloud_firestore: ^3.3.0
   firestore_api:
 #    path: ../firestore_api
