@@ -15,7 +15,7 @@ class FirestoreDocument {
 class FirestoreAttribute {
   final bool ignore;
   final bool nullable;
-  final String alias;
+  final String? alias;
   final dynamic defaultValue;
 
   const FirestoreAttribute({
