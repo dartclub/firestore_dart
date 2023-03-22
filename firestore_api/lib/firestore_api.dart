@@ -214,6 +214,8 @@ abstract class Query {
   Query startAt(List<dynamic> values);
   Query endAt(List<dynamic> values);
   Query endBefore(List<dynamic> values);
+
+  AggregateQuery count();
 }
 
 enum DocumentChangeType {
@@ -389,4 +391,23 @@ mixin BatchHelper {
       _batch = _batchFirestore.batch();
     }
   }
+}
+
+enum AggregateSource {
+  /// Indicates that the data should be retrieved from the server.
+  server,
+}
+
+class AggregateQuerySnapshot {
+  /// Returns the count of the documents that match the query.
+  final int count;
+
+  AggregateQuerySnapshot(this.count);
+}
+
+abstract class AggregateQuery {
+  /// Returns an [AggregateQuerySnapshot] with the count of the documents that match the query.
+  Future<AggregateQuerySnapshot> get({
+    AggregateSource source = AggregateSource.server,
+  });
 }
