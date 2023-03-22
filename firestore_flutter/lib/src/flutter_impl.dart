@@ -238,6 +238,13 @@ fs.Source _remapSource(Source source) {
   }
 }
 
+fs.AggregateSource _remapAggregateSource(AggregateSource source) {
+  switch (source) {
+    case AggregateSource.server:
+      return fs.AggregateSource.server;
+  }
+}
+
 class _QueryImpl extends Query {
   final fs.Query<DynamicMap> _query;
 
@@ -339,6 +346,25 @@ class _QueryImpl extends Query {
   @override
   Query startAt(List<dynamic> values) {
     return _QueryImpl(_query.startAt(_dataWrapper.unwrapValue(values)));
+  }
+
+  @override
+  AggregateQuery count() {
+    return _AggregateQueryImpl(_query.count());
+  }
+}
+
+class _AggregateQueryImpl extends AggregateQuery {
+  final fs.AggregateQuery _aggregateQuery;
+
+  _AggregateQueryImpl(this._aggregateQuery);
+
+  @override
+  Future<AggregateQuerySnapshot> get(
+      {AggregateSource source = AggregateSource.server}) async {
+    fs.AggregateQuerySnapshot snapshot =
+        await _aggregateQuery.get(source: _remapAggregateSource(source));
+    return AggregateQuerySnapshot(snapshot.count);
   }
 }
 
