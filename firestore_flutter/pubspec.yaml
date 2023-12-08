@@ -9,7 +9,7 @@ environment:
   flutter: ">=3.0.0"
 
 dependencies:
-  cloud_firestore: ^4.13.5
+  cloud_firestore: 4.13.1 # keep until resolved: https://github.com/firebase/flutterfire/issues/12003
   firestore_api:
 #    path: ../firestore_api
     git:
