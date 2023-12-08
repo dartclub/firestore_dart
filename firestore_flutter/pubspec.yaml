@@ -1,16 +1,15 @@
 name: firestore_flutter
 description: firestore interop for flutter
-version: 2.0.0
+version: 3.0.0
 homepage: https://www.github.com/dartclub/firestore_dart
 publish_to: 'none'
 
 environment:
-  sdk: ">=2.16.0 <3.0.0"
-  flutter: ">=1.17.0"
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.0.0"
 
 dependencies:
-  firebase_core: ^2.8.0
-  cloud_firestore: ^4.4.5
+  cloud_firestore: ^4.13.5
   firestore_api:
 #    path: ../firestore_api
     git:
@@ -21,5 +20,4 @@ dependencies:
   
 
 dev_dependencies:
-  dartclub_lint: 0.2.1
   test: ^1.16.5

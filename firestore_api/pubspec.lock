@@ -73,14 +73,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
-  dartclub_lint:
-    dependency: "direct dev"
-    description:
-      name: dartclub_lint
-      sha256: "90e288a269cdaabb6de855b6606344206f689e878e68f3a870a20ee7ce982248"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1"
   file:
     dependency: transitive
     description:
@@ -370,4 +362,4 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.19.0-345.0.dev <3.0.0"
+  dart: ">=3.0.0 <4.0.0"

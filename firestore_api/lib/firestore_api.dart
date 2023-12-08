@@ -145,7 +145,7 @@ abstract class DocumentReference {
   Future<DocumentSnapshot> get document;
   String get documentID;
   String get path;
-  Future<void> setData(DynamicMap data, {bool merge: false});
+  Future<void> setData(DynamicMap data, {bool merge = false});
   Future<void> update(DynamicMap data);
   Future<void> delete();
   Stream<DocumentSnapshot> snapshots({bool includeMetadataChanges = false});
@@ -167,7 +167,7 @@ abstract class DocumentReference {
 abstract class CollectionReference extends Query {
   Future<DocumentReference> add(DynamicMap document);
   DocumentReference document([String path]);
-  Query orderBy(String field, {bool descending: false});
+  Query orderBy(String field, {bool descending = false});
   DocumentReference? get parent;
 }
 
@@ -191,18 +191,18 @@ abstract class Query {
   Future<QuerySnapshot> getDocuments({Source source = Source.serverAndCache});
   Query where(
     String field, {
-    dynamic? isEqualTo,
-    dynamic? isLessThan,
-    dynamic? isLessThanOrEqualTo,
-    dynamic? isGreaterThan,
-    dynamic? isGreaterThanOrEqualTo,
-    dynamic? arrayContains,
+    dynamic isEqualTo,
+    dynamic isLessThan,
+    dynamic isLessThanOrEqualTo,
+    dynamic isGreaterThan,
+    dynamic isGreaterThanOrEqualTo,
+    dynamic arrayContains,
     List<dynamic>? whereIn,
     List<dynamic>? whereNotIn,
     List<dynamic>? arrayContainsAny,
     bool? isNull,
   });
-  Query orderBy(String field, {bool descending: false});
+  Query orderBy(String field, {bool descending = false});
   Query limit(int length);
 
   Query startAfterDocument(DocumentSnapshot documentSnapshot);
