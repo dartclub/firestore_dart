@@ -470,6 +470,11 @@ class FirestoreImpl extends Firestore {
   Query collectionGroup(String path) {
     return _QueryImpl(_firestore.collectionGroup(path));
   }
+
+  @override
+  Future<void> waitForPendingWrites() {
+    return _firestore.waitForPendingWrites();
+  }
 }
 
 useFirestoreEmulator(FirebaseApp app, String host, int port) {

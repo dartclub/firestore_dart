@@ -118,6 +118,8 @@ abstract class Firestore {
   Future<T> runTransaction<T>(
       Future<T> transactionHandler(Transaction transaction),
       {Duration timeout = const Duration(seconds: 5)});
+
+  Future<void> waitForPendingWrites();
 }
 
 abstract class Transaction {
