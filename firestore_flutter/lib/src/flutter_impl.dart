@@ -289,7 +289,10 @@ class _QueryImpl extends Query {
     return _QueryImpl(
       _query.where(
         field,
-        isEqualTo: _dataWrapper.unwrapValue(isEqualTo),
+        isEqualTo: isEqualTo == null
+            // ignore: invalid_use_of_internal_member
+            ? fs.notSetQueryParam
+            : _dataWrapper.unwrapValue(isEqualTo),
         isGreaterThan: _dataWrapper.unwrapValue(isGreaterThan),
         isGreaterThanOrEqualTo:
             _dataWrapper.unwrapValue(isGreaterThanOrEqualTo),

@@ -155,7 +155,7 @@ abstract class DocumentReference {
   CollectionReference get parent;
 
   @override
-  bool operator ==(dynamic o) => o is DocumentReference && o.path == path;
+  bool operator ==(Object o) => o is DocumentReference && o.path == path;
 
   @override
   int get hashCode => path.hashCode;
@@ -278,7 +278,7 @@ class Blob {
   final Uint8List bytes;
 
   @override
-  bool operator ==(dynamic other) => other is Blob && bytes == other.bytes;
+  bool operator ==(Object other) => other is Blob && bytes == other.bytes;
 }
 
 abstract class BatchHelperService {
@@ -402,7 +402,7 @@ enum AggregateSource {
 
 class AggregateQuerySnapshot {
   /// Returns the count of the documents that match the query.
-  final int count;
+  final int? count;
 
   AggregateQuerySnapshot(this.count);
 }
