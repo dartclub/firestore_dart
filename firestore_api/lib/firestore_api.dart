@@ -113,7 +113,7 @@ abstract class Firestore {
   CollectionReference collection(String path);
   Query collectionGroup(String path);
 
-  DocumentReference document(String path);
+  DocumentReference doc(String path);
   WriteBatch batch();
   Future<T> runTransaction<T>(
       Future<T> transactionHandler(Transaction transaction),
@@ -144,10 +144,12 @@ abstract class DocumentSnapshot {
 }
 
 abstract class DocumentReference {
+  Future<DocumentSnapshot> get();
+  @Deprecated('Use get() instead')
   Future<DocumentSnapshot> get document;
   String get documentID;
   String get path;
-  Future<void> setData(DynamicMap data, {bool merge = false});
+  Future<void> set(DynamicMap data, {bool merge = false});
   Future<void> update(DynamicMap data);
   Future<void> delete();
   Stream<DocumentSnapshot> snapshots({bool includeMetadataChanges = false});
@@ -168,7 +170,7 @@ abstract class DocumentReference {
 
 abstract class CollectionReference extends Query {
   Future<DocumentReference> add(DynamicMap document);
-  DocumentReference document([String path]);
+  DocumentReference doc([String path]);
   Query orderBy(String field, {bool descending = false});
   DocumentReference? get parent;
 }
@@ -236,9 +238,8 @@ enum DocumentChangeType {
 abstract class WriteBatch {
   Future<void> commit();
   void delete(DocumentReference document);
-  void setData(DocumentReference document, DynamicMap data,
-      {bool merge = false});
-  void updateData(DocumentReference document, DynamicMap data);
+  void set(DocumentReference document, DynamicMap data, {bool merge = false});
+  void update(DocumentReference document, DynamicMap data);
 }
 
 enum FieldValueType {
@@ -301,7 +302,7 @@ abstract class BatchHelperService {
 
   _addUpdateToBatch(DocumentReference ref, DynamicMap data,
       {int commitAfter = MAX_ENTRIES_PER_BATCH}) async {
-    batch.updateData(ref, data);
+    batch.update(ref, data);
     await _processBatch(commitAfter);
   }
 
@@ -369,7 +370,7 @@ mixin BatchHelper {
 
   Future<void> addUpdateToBatch(DocumentReference ref, DynamicMap data,
       {int commitAfter = MAX_ENTRIES_PER_BATCH}) async {
-    _batch.updateData(ref, data);
+    _batch.update(ref, data);
     if (logging) {
       print("batch update: $ref => $data");
     }
@@ -378,7 +379,7 @@ mixin BatchHelper {
 
   Future<void> addSetDataToBatch(DocumentReference ref, DynamicMap data,
       {int commitAfter = MAX_ENTRIES_PER_BATCH, bool merge = false}) async {
-    _batch.setData(ref, data, merge: merge);
+    _batch.set(ref, data, merge: merge);
     if (logging) {
       print("batch set: $ref => $data");
     }

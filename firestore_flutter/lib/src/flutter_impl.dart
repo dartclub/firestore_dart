@@ -167,6 +167,11 @@ class _DocumentReferenceImpl extends DocumentReference {
   }
 
   @override
+  Future<DocumentSnapshot> get() async {
+    return _DocumentSnapshotImpl(await _documentReference.get());
+  }
+
+  @override
   Future<DocumentSnapshot> get document async {
     return _DocumentSnapshotImpl(await _documentReference.get());
   }
@@ -178,7 +183,7 @@ class _DocumentReferenceImpl extends DocumentReference {
   String get path => _documentReference.path;
 
   @override
-  Future<void> setData(Map<String, dynamic> data, {bool merge = false}) {
+  Future<void> set(Map<String, dynamic> data, {bool merge = false}) {
     return _documentReference.set(
         _dataWrapper.unwrapMap(data), fs.SetOptions(merge: true));
   }
@@ -215,7 +220,7 @@ class _CollectionReferenceImpl extends _QueryImpl
   }
 
   @override
-  DocumentReference document([String? path]) {
+  DocumentReference doc([String? path]) {
     return _DocumentReferenceImpl(_collectionReference.doc(path));
   }
 
@@ -387,14 +392,14 @@ class _WriteBatch extends WriteBatch {
   }
 
   @override
-  void setData(DocumentReference document, Map<String, dynamic> data,
+  void set(DocumentReference document, Map<String, dynamic> data,
       {bool merge = false}) {
     _writeBatch.set((document as _DocumentReferenceImpl)._documentReference,
         _dataWrapper.unwrapMap(data), fs.SetOptions(merge: merge));
   }
 
   @override
-  void updateData(DocumentReference document, Map<String, dynamic> data) {
+  void update(DocumentReference document, Map<String, dynamic> data) {
     _writeBatch.update((document as _DocumentReferenceImpl)._documentReference,
         _dataWrapper.unwrapMap(data));
   }
@@ -458,7 +463,7 @@ class FirestoreImpl extends Firestore {
   }
 
   @override
-  DocumentReference document(String path) {
+  DocumentReference doc(String path) {
     return _DocumentReferenceImpl(_firestore.doc(path));
   }
 
