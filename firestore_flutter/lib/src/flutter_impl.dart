@@ -442,6 +442,8 @@ class FirestoreImpl extends Firestore {
 
   static Firestore instance = FirestoreImpl._(fs.FirebaseFirestore.instance);
 
+  fs.FirebaseFirestore get firebaseFirestore => _firestore;
+
   factory FirestoreImpl.fromInstance(fs.FirebaseFirestore instance) =>
       FirestoreImpl._(instance);
 
