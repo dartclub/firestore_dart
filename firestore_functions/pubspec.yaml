@@ -18,5 +18,3 @@ dependencies:
     git:
       url: https://github.com/dartclub/firestore_dart
       path: firestore_node
-dev_dependencies:
-  dartclub_lint: ^0.2.1
